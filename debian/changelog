@@ -1,0 +1,5 @@
+wb-mqtt-iec104 (0.1.0) unstable; urgency=medium
+
+  * Initial release.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Tue, 10 Nov 2020 12:06:00 +0500

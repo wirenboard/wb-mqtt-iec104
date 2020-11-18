@@ -1,0 +1,12 @@
+#!/bin/bash
+
+CONFFILE=/etc/wb-mqtt-iec104.conf
+
+if [ "$1" = "purge" ]; then
+    if [ -x /usr/bin/ucf ]; then
+        ucf  --purge $CONFFILE
+        rm -f $CONFFILE
+    fi
+fi
+
+#DEBHELPER#

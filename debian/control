@@ -1,0 +1,12 @@
+Source: wb-mqtt-iec104
+Maintainer: Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 10), pkg-config, libwbmqtt1-dev (>= 1.0.10), libjsoncpp-dev, libwbmqtt1-test-utils (>= 1.0.10)
+
+Package: wb-mqtt-iec104
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libwbmqtt1 (>= 1.0.10), libjsoncpp0 | libjsoncpp1, ucf
+Breaks:
+Description: Wiren Board MQTT to IEC 60870-5-104 gateway

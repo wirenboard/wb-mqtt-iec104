@@ -1,0 +1,254 @@
+#include "config_parser.h"
+
+#include <iostream>
+#include <fstream>
+#include <queue>
+#include <set>
+#include <unordered_set>
+
+#include <sys/stat.h>
+
+#include <wblib/wbmqtt.h>
+#include <wblib/json_utils.h>
+
+#include "log.h"
+
+using namespace std;
+using namespace WBMQTT;
+using namespace WBMQTT::JSON;
+
+#define LOG(logger) ::logger.Log() << "[config] "
+
+namespace
+{
+    const std::unordered_map<std::string, TIecInformationObjectType> Types = {
+            { "single point",                       SinglePoint },
+            { "measured value short",               MeasuredValueShort },
+            { "measured value scaled",              MeasuredValueScaled },
+            { "measured value scaled, R component", MeasuredValueScaledR },
+            { "measured value scaled, G component", MeasuredValueScaledG },
+            { "measured value scaled, B component", MeasuredValueScaledB }
+        };
+
+    TIecInformationObjectType GetIoType(const std::string& t)
+    {
+        auto it = Types.find(t);
+        if (it == Types.end()) {
+            throw std::runtime_error("Unknown information object type:" + t);
+        }
+        return it->second;
+    }
+
+    TControlsConfig LoadControls(const std::string& deviceName, const Json::Value& controls, std::set<uint32_t>& UsedAddresses)
+    {
+        TControlsConfig res;
+        for (const auto& control: controls) {
+            bool enabled = false;
+            Get(control, "enabled", enabled);
+            if (enabled) {
+                std::string name(control["name"].asString());
+                uint32_t    ioa = control["address"].asUInt();
+                if (UsedAddresses.count(ioa)) {
+                    LOG(Warn) << "Control '" << name << "' of device '" << deviceName << "' has duplicate address " << ioa;
+                } else {
+                    UsedAddresses.insert(ioa);
+                    res.insert({name, { ioa, GetIoType(control["iec_type"].asString()) }});
+                }
+            }
+        }
+        return res;
+    }
+
+    TDeviceConfig LoadDevices(const Json::Value& devices, std::set<uint32_t>& UsedAddresses)
+    {
+        TDeviceConfig res;
+        for (const auto& device: devices) {
+            bool enabled = false;
+            Get(device, "enabled", enabled);
+            if (enabled) {
+                std::string name(device["name"].asString());
+                res[name] = LoadControls(name, device["controls"], UsedAddresses);
+            }
+        }
+        return res;
+    }
+
+    TMosquittoMqttConfig LoadMqttConfig(const Json::Value& configRoot)
+    {
+        TMosquittoMqttConfig cfg;
+        if (configRoot.isMember("mqtt")) {
+            Get(configRoot["mqtt"], "host", cfg.Host);
+            Get(configRoot["mqtt"], "port", cfg.Port);
+            Get(configRoot["mqtt"], "keepalive", cfg.Keepalive);
+            bool auth = false;
+            Get(configRoot["mqtt"], "auth", auth);
+            if (auth) {
+                Get(configRoot["mqtt"], "username", cfg.User);
+                Get(configRoot["mqtt"], "password", cfg.Password);
+            }
+        }
+        return cfg;
+    }
+
+    class AddressAssigner
+    {
+            std::set<uint32_t> UsedAddresses;
+            uint32_t NextAddress;
+        public:
+            AddressAssigner(const Json::Value& config) : NextAddress(1)
+            {
+                for (const auto& device: config["devices"]) {
+                    if (device.isMember("controls")) {
+                        for (const auto& control: device["controls"]) {
+                            UsedAddresses.insert(control["address"].asUInt());
+                        }
+                    }
+                }
+            }
+
+            uint32_t GetAddress()
+            {
+                while (!UsedAddresses.empty() && UsedAddresses.count(NextAddress)) {
+                    UsedAddresses.erase(NextAddress);
+                    ++NextAddress;
+                }
+                return NextAddress++;
+            }
+    };
+
+    bool IsConvertibleControl(PControl control)
+    {
+        return (control->GetType() != "text");
+    }
+
+    Json::Value MakeControlConfig(const std::string& name, const std::string& info, uint32_t addr, const std::string& iecType)
+    {
+        Json::Value cnt(Json::objectValue);
+        cnt["name"] = name;
+        cnt["info"] = info;
+        cnt["enabled"] = false;
+        cnt["address"] = addr;
+        cnt["iec_type"] = iecType;
+        return cnt;
+    }
+
+    void AppenControl(Json::Value& root, PControl c, AddressAssigner& aa)
+    {
+        if (!IsConvertibleControl(c)) {
+            ::Warn.Log() << "'" << c->GetId()
+                            << "' of type '" << c->GetType()
+                            << "' from device '" << c->GetDevice()->GetId()
+                            << "' is not convertible to IEC 608760-5-104 information object";
+            return;
+        }
+
+        std::string info(c->GetType());
+        info += (c->IsReadonly() ? " (read only)" : " (setup is allowed)");
+
+        if (c->GetType() == "switch" || c->GetType() == "pushbutton") {
+            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "single point"));
+            return;
+        }
+        if (c->GetType() == "rgb") {
+            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "measured value scaled, R component"));
+            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "measured value scaled, G component"));
+            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "measured value scaled, B component"));
+            return;
+        }
+        root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "measured value short"));
+    }
+
+    void UpdateDeviceConfig(Json::Value& deviceConfig, PDevice device, AddressAssigner& addressAssigner)
+    {
+        std::unordered_set<std::string> oldControls;
+        for (auto& control: deviceConfig["controls"]) {
+            oldControls.insert(control["name"].asString());
+        }
+
+        for (auto control: device->ControlsList()) {
+            if (!oldControls.count(control->GetId())) {
+                AppenControl(deviceConfig["controls"], control, addressAssigner);
+            }
+        }
+    }
+
+    Json::Value MakeDeviceConfig(PDevice device, AddressAssigner& addressAssigner)
+    {
+        Json::Value dev(Json::objectValue);
+        dev["name"] = device->GetId();
+        dev["enabled"] = false;
+        dev["controls"] = Json::Value(Json::arrayValue);
+        UpdateDeviceConfig(dev, device, addressAssigner);
+        return dev;
+    }
+}
+
+TConfig LoadConfig(const std::string& configFileName, const std::string& configSchemaFileName)
+{
+    auto config = JSON::Parse(configFileName);
+    JSON::Validate(config, JSON::Parse(configSchemaFileName));
+    std::set<uint32_t> usedAddresses;
+
+    TConfig cfg;
+    cfg.Iec.BindIp        = config["iec"]["host"].asString();
+    cfg.Iec.BindPort      = config["iec"]["port"].asUInt();
+    cfg.Iec.CommonAddress = config["iec"]["address"].asUInt();
+    cfg.Mqtt              = LoadMqttConfig(config);
+    cfg.Devices           = LoadDevices(config["devices"], usedAddresses);
+    Get(config, "debug", cfg.Debug);
+    return cfg;
+}
+
+void UpdateConfig(const string& configFileName, const string& configSchemaFileName)
+{
+    auto config = JSON::Parse(configFileName);
+    JSON::Validate(config, JSON::Parse(configSchemaFileName));
+
+    WBMQTT::TMosquittoMqttConfig mqttConfig(LoadMqttConfig(config));
+    auto mqtt = NewMosquittoMqttClient(mqttConfig);
+    auto backend = NewDriverBackend(mqtt);
+    auto driver = NewDriver(TDriverArgs{}
+        .SetId("wb-mqtt-iec104-config_generator")
+        .SetBackend(backend)
+    );
+    driver->StartLoop();
+    UpdateConfig(driver, config);
+    driver->StopLoop();
+
+    Json::StreamWriterBuilder builder;
+    builder["indentation"] = "    ";
+    std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+    std::ofstream file(configFileName);
+    writer->write(config, &file);
+    file << std::endl;
+}
+
+void UpdateConfig(PDeviceDriver driver, Json::Value& oldConfig)
+{
+    driver->WaitForReady();
+    driver->SetFilter(GetAllDevicesFilter());
+    driver->WaitForReady();
+
+    AddressAssigner addressAssigner(oldConfig);
+
+    std::map<std::string, PDevice> mqttDevices;
+    auto tx = driver->BeginTx();
+    for (auto& device: tx->GetDevicesList()) {
+        mqttDevices[device->GetId()] = device;
+    }
+
+    for (auto& oldDevice: oldConfig["devices"]) {
+        auto mqttDevice = mqttDevices.find(oldDevice["name"].asString());
+        if (mqttDevice != mqttDevices.end()) {
+            UpdateDeviceConfig(oldDevice, mqttDevice->second, addressAssigner);
+            mqttDevices.erase(mqttDevice);
+        }
+    }
+
+    for (auto& mqttDevice: mqttDevices) {
+        auto deviceConfig = MakeDeviceConfig(mqttDevice.second, addressAssigner);
+        if (deviceConfig["controls"].size()) {
+            oldConfig["devices"].append(deviceConfig);
+        }
+    }
+}

@@ -1,0 +1,108 @@
+Subscribe: /devices/+/meta/driver (QoS 0)
+Publish: /devices/test/meta/driver: 'test' (QoS 1, retained)
+Publish: /devices/test/meta/name: '' (QoS 1, retained)
+Publish: /devices/test/controls/test2/meta/error: '' (QoS 1, retained)
+Publish: /devices/test/controls/test2/meta/order: '1' (QoS 1, retained)
+Publish: /devices/test/controls/test2/meta/readonly: '1' (QoS 1, retained)
+Publish: /devices/test/controls/test2/meta/type: 'value' (QoS 1, retained)
+Publish: /devices/test/controls/test2: '0' (QoS 1, retained)
+Publish: /devices/test/controls/test4/meta/error: '' (QoS 1, retained)
+Publish: /devices/test/controls/test4/meta/order: '2' (QoS 1, retained)
+Publish: /devices/test/controls/test4/meta/readonly: '0' (QoS 1, retained)
+Publish: /devices/test/controls/test4/meta/type: 'rgb' (QoS 1, retained)
+Publish: /devices/test/controls/test4: '' (QoS 1, retained)
+Subscribe: /devices/test/controls/test4/on (QoS 0)
+Publish: /devices/test2/meta/driver: 'test' (QoS 1, retained)
+Publish: /devices/test2/meta/name: '' (QoS 1, retained)
+Publish: /devices/test2/controls/test2/meta/error: '' (QoS 1, retained)
+Publish: /devices/test2/controls/test2/meta/order: '1' (QoS 1, retained)
+Publish: /devices/test2/controls/test2/meta/readonly: '1' (QoS 1, retained)
+Publish: /devices/test2/controls/test2/meta/type: 'value' (QoS 1, retained)
+Publish: /devices/test2/controls/test2: '0' (QoS 1, retained)
+Subscribe: /devices/+/meta/+ (QoS 0)
+(retain) -> /devices/test/meta/driver: 'test' (QoS 1, retained)
+(retain) -> /devices/test2/meta/driver: 'test' (QoS 1, retained)
+Subscribe: /devices/+/controls/+/meta/+ (QoS 0)
+(retain) -> /devices/test/controls/test2/meta/order: '1' (QoS 1, retained)
+(retain) -> /devices/test/controls/test2/meta/readonly: '1' (QoS 1, retained)
+(retain) -> /devices/test/controls/test2/meta/type: 'value' (QoS 1, retained)
+(retain) -> /devices/test/controls/test4/meta/order: '2' (QoS 1, retained)
+(retain) -> /devices/test/controls/test4/meta/readonly: '0' (QoS 1, retained)
+(retain) -> /devices/test/controls/test4/meta/type: 'rgb' (QoS 1, retained)
+(retain) -> /devices/test2/controls/test2/meta/order: '1' (QoS 1, retained)
+(retain) -> /devices/test2/controls/test2/meta/readonly: '1' (QoS 1, retained)
+(retain) -> /devices/test2/controls/test2/meta/type: 'value' (QoS 1, retained)
+Subscribe: /devices/+/controls/+ (QoS 0)
+(retain) -> /devices/test/controls/test2: '0' (QoS 1, retained)
+(retain) -> /devices/test2/controls/test2: '0' (QoS 1, retained)
+{
+    "devices" : 
+    [
+        {
+            "controls" : 
+            [
+                {
+                    "address" : 2,
+                    "enabled" : true,
+                    "iec_type" : "measured value short",
+                    "name" : "test2"
+                },
+                {
+                    "address" : 2,
+                    "enabled" : true,
+                    "iec_type" : "measured value short",
+                    "name" : "test1"
+                },
+                {
+                    "address" : 4,
+                    "enabled" : false,
+                    "iec_type" : "measured value short",
+                    "name" : "test3"
+                },
+                {
+                    "address" : 1,
+                    "enabled" : false,
+                    "iec_type" : "measured value scaled, R component",
+                    "info" : "rgb (setup is allowed)",
+                    "name" : "test4"
+                },
+                {
+                    "address" : 3,
+                    "enabled" : false,
+                    "iec_type" : "measured value scaled, G component",
+                    "info" : "rgb (setup is allowed)",
+                    "name" : "test4"
+                },
+                {
+                    "address" : 5,
+                    "enabled" : false,
+                    "iec_type" : "measured value scaled, B component",
+                    "info" : "rgb (setup is allowed)",
+                    "name" : "test4"
+                }
+            ],
+            "enabled" : true,
+            "name" : "test"
+        },
+        {
+            "controls" : 
+            [
+                {
+                    "address" : 6,
+                    "enabled" : false,
+                    "iec_type" : "measured value short",
+                    "info" : "value (read only)",
+                    "name" : "test2"
+                }
+            ],
+            "enabled" : false,
+            "name" : "test2"
+        }
+    ],
+    "iec104" : 
+    {
+        "address" : 1,
+        "host" : "",
+        "port" : 2404
+    }
+}

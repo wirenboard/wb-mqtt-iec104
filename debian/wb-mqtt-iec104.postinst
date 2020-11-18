@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ucf --debconf-ok /usr/share/wb-mqtt-iec104/wb-mqtt-iec104.sample.conf /etc/wb-mqtt-iec104.conf
+
+#DEBHELPER#
