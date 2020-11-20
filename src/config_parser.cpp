@@ -12,6 +12,7 @@
 #include <wblib/json_utils.h>
 
 #include "log.h"
+#include "murmurhash.h"
 
 using namespace std;
 using namespace WBMQTT;
@@ -94,9 +95,8 @@ namespace
     class AddressAssigner
     {
             std::set<uint32_t> UsedAddresses;
-            uint32_t NextAddress;
         public:
-            AddressAssigner(const Json::Value& config) : NextAddress(1)
+            AddressAssigner(const Json::Value& config)
             {
                 for (const auto& device: config["devices"]) {
                     if (device.isMember("controls")) {
@@ -107,13 +107,15 @@ namespace
                 }
             }
 
-            uint32_t GetAddress()
+            uint32_t GetAddress(const std::string& topicName)
             {
-                while (!UsedAddresses.empty() && UsedAddresses.count(NextAddress)) {
-                    UsedAddresses.erase(NextAddress);
-                    ++NextAddress;
+                uint32_t newAddr = MurmurHash2A((const uint8_t*)topicName.data(), topicName.size(), 0xA30AA568) & 0xFFFFFF;
+                const uint32_t ADDR_SALT = 7079;
+                while (UsedAddresses.count(newAddr)) {
+                    newAddr = (newAddr + ADDR_SALT) & 0xFFFFFF;
                 }
-                return NextAddress++;
+                UsedAddresses.insert(newAddr);
+                return newAddr;
             }
     };
 
@@ -146,11 +148,13 @@ namespace
         std::string info(c->GetType());
         info += (c->IsReadonly() ? " (read only)" : " (setup is allowed)");
 
+        std::string deviceControlPair(c->GetDevice()->GetId() + "/" + c->GetId());
+
         if (c->GetType() == "switch" || c->GetType() == "pushbutton") {
-            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), SINGLE_POINT_CONFIG_VALUE));
+            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(deviceControlPair), SINGLE_POINT_CONFIG_VALUE));
             return;
         }
-        root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), MEASURED_VALUE_SHORT_CONFIG_VALUE));
+        root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(deviceControlPair), MEASURED_VALUE_SHORT_CONFIG_VALUE));
     }
 
     void UpdateDeviceConfig(Json::Value& deviceConfig, PDevice device, AddressAssigner& addressAssigner)

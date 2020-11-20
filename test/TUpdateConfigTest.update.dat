@@ -67,7 +67,7 @@ Subscribe: /devices/+/controls/+ (QoS 0)
             "controls" : 
             [
                 {
-                    "address" : 1,
+                    "address" : 2487232,
                     "enabled" : false,
                     "iec_type" : "short",
                     "info" : "value (read only)",
