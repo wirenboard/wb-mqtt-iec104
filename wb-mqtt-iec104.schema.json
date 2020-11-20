@@ -18,9 +18,9 @@
           "propertyOrder": 1,
           "_format": "checkbox"
         },
-        "name": {
+        "topic": {
           "type": "string",
-          "title": "MQTT control (from topic name)",
+          "title": "MQTT device and control (from topic name)",
           "propertyOrder": 2
         },
         "info": {
@@ -54,11 +54,11 @@
           }
         }
       },
-      "required": ["name", "address", "iec_type"]
+      "required": ["topic", "address", "iec_type"]
     },
-    "device": {
+    "group": {
       "type": "object",
-      "title": "Device",
+      "title": "Group",
       "headerTemplate": "{{self.name}}",
       "properties": {
         "enabled": {
@@ -69,7 +69,7 @@
         },
         "name": {
           "type": "string",
-          "title": "MQTT Device (from topic name)",
+          "title": "Group name",
           "propertyOrder": 2
         },
         "controls": {
@@ -86,7 +86,7 @@
           }
         }
       },
-      "required": ["name"],
+      "required": ["name", "controls"],
       "options" : {
         "disable_edit_json" : true,
         "disable_properties": true,
@@ -188,12 +188,12 @@
         "disable_properties": true
       }
     },
-    "devices": {
+    "groups": {
       "type": "array",
-      "title": "MQTT Devices",
+      "title": "Groups of controls",
       "propertyOrder": 4,
       "items": {
-        "$ref": "#/definitions/device"
+        "$ref": "#/definitions/group"
       },
       "options": {
         "disable_array_reorder": true,
@@ -202,7 +202,7 @@
       "_format": "tabs"
     }
   },
-  "required": ["iec104"],
+  "required": ["iec104", "groups"],
   "options" : {
     "disable_properties": true,
     "disable_collapse": true

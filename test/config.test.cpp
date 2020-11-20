@@ -31,9 +31,15 @@ TEST_F(TLoadConfigTest, no_file)
 
 TEST_F(TLoadConfigTest, bad_config)
 {
+    // missing fields
     for (size_t i = 1; i <= 7; ++i) {
-        ASSERT_THROW(LoadConfig(TestRootDir + "/bad/bad" + std::to_string(i) + ".conf", SchemaFile), std::runtime_error);
+        ASSERT_THROW(LoadConfig(TestRootDir + "/bad/bad" + std::to_string(i) + ".conf", SchemaFile), std::runtime_error) << i;
     }
+
+    // bad topic name
+    auto c = LoadConfig(TestRootDir + "/bad/bad_topic_name.conf", SchemaFile);
+    ASSERT_EQ(c.Devices.size(), 1);
+    ASSERT_EQ(c.Devices["test"].size(), 1);
 }
 
 TEST_F(TLoadConfigTest, good)

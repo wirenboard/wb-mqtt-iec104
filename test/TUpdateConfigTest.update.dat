@@ -36,7 +36,7 @@ Subscribe: /devices/+/controls/+ (QoS 0)
 (retain) -> /devices/test/controls/test2: '0' (QoS 1, retained)
 (retain) -> /devices/test2/controls/test2: '0' (QoS 1, retained)
 {
-    "devices" : 
+    "groups" : 
     [
         {
             "controls" : 
@@ -45,19 +45,19 @@ Subscribe: /devices/+/controls/+ (QoS 0)
                     "address" : 2,
                     "enabled" : true,
                     "iec_type" : "short",
-                    "name" : "test2"
+                    "topic" : "test/test2"
                 },
                 {
                     "address" : 2,
                     "enabled" : true,
                     "iec_type" : "short",
-                    "name" : "test1"
+                    "topic" : "test/test1"
                 },
                 {
                     "address" : 4,
                     "enabled" : false,
                     "iec_type" : "short",
-                    "name" : "test3"
+                    "topic" : "test/test3"
                 }
             ],
             "enabled" : true,
@@ -71,7 +71,7 @@ Subscribe: /devices/+/controls/+ (QoS 0)
                     "enabled" : false,
                     "iec_type" : "short",
                     "info" : "value (read only)",
-                    "name" : "test2"
+                    "topic" : "test2/test2"
                 }
             ],
             "enabled" : false,

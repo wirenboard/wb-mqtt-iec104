@@ -1,8 +1,14 @@
+wb-mqtt-iec104 (0.2.0) unstable; urgency=medium
+
+  * Configuration file format is changed.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Fri, 20 Nov 2020 12:01:00 +0500
+
 wb-mqtt-iec104 (0.1.1) unstable; urgency=medium
 
   * "rgb" controls support is dropped.
 
- -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Tue, 20 Fri 2020 09:01:00 +0500
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Fri, 20 Nov 2020 09:01:00 +0500
 
 wb-mqtt-iec104 (0.1.0) unstable; urgency=medium
 
