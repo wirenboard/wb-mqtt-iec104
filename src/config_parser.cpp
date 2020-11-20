@@ -24,10 +24,7 @@ namespace
     const std::unordered_map<std::string, TIecInformationObjectType> Types = {
             { "single point",                       SinglePoint },
             { "measured value short",               MeasuredValueShort },
-            { "measured value scaled",              MeasuredValueScaled },
-            { "measured value scaled, R component", MeasuredValueScaledR },
-            { "measured value scaled, G component", MeasuredValueScaledG },
-            { "measured value scaled, B component", MeasuredValueScaledB }
+            { "measured value scaled",              MeasuredValueScaled }
         };
 
     TIecInformationObjectType GetIoType(const std::string& t)
@@ -118,7 +115,7 @@ namespace
 
     bool IsConvertibleControl(PControl control)
     {
-        return (control->GetType() != "text");
+        return (control->GetType() != "text" && control->GetType() != "rgb");
     }
 
     Json::Value MakeControlConfig(const std::string& name, const std::string& info, uint32_t addr, const std::string& iecType)
@@ -147,12 +144,6 @@ namespace
 
         if (c->GetType() == "switch" || c->GetType() == "pushbutton") {
             root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "single point"));
-            return;
-        }
-        if (c->GetType() == "rgb") {
-            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "measured value scaled, R component"));
-            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "measured value scaled, G component"));
-            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "measured value scaled, B component"));
             return;
         }
         root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "measured value short"));

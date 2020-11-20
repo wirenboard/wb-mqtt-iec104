@@ -9,15 +9,6 @@ using namespace WBMQTT;
 
 namespace
 {
-    int GetRgbComponent(const std::string& value, size_t pos)
-    {
-        auto params = StringSplit(value, ';');
-        if (params.size() != 3) {
-            throw std::runtime_error("rgb value must have 3 components");
-        }
-        return stoi(params[pos]);
-    }
-
     bool Append(IEC104::TInformationObjects& objs, PControl control, const std::string& v, const TIecInformationObject& obj) noexcept
     {
         if (v.empty()) {
@@ -42,15 +33,6 @@ namespace
                 return true;
             case MeasuredValueScaled:
                 objs.MeasuredValueScaled.emplace_back(std::make_pair(obj.Address, stoi(v)));
-                return true;
-            case MeasuredValueScaledR:
-                objs.MeasuredValueScaled.emplace_back(std::make_pair(obj.Address, GetRgbComponent(v, 0)));
-                return true;
-            case MeasuredValueScaledG:
-                objs.MeasuredValueScaled.emplace_back(std::make_pair(obj.Address, GetRgbComponent(v, 1)));
-                return true;
-            case MeasuredValueScaledB:
-                objs.MeasuredValueScaled.emplace_back(std::make_pair(obj.Address, GetRgbComponent(v, 2)));
                 return true;
             }
         } catch (const std::exception& e) {
@@ -88,21 +70,7 @@ TGateway::TGateway(PDeviceDriver driver, IEC104::IServer* iecServer, const TDevi
             for (const auto& control: device.second) {
                 auto pControl = pDevice->GetControl(control.first);
                 if (pControl) {
-                    switch (control.second.Type)
-                    {
-                    case MeasuredValueScaledR:
-                        IoaToControls[control.second.Address] = {device.first, control.first, TControlDesc::RGBValueR};
-                        break;
-                    case MeasuredValueScaledG:
-                        IoaToControls[control.second.Address] = {device.first, control.first, TControlDesc::RGBValueG};
-                        break;
-                    case MeasuredValueScaledB:
-                        IoaToControls[control.second.Address] = {device.first, control.first, TControlDesc::RGBValueB};
-                        break;
-                    default:
-                        IoaToControls[control.second.Address] = {device.first, control.first, TControlDesc::FullValue};
-                        break;
-                    }
+                    IoaToControls[control.second.Address] = {device.first, control.first};
                 }
             }
         }
@@ -189,17 +157,8 @@ bool TGateway::SetParameter(uint32_t ioa, const std::string& value) noexcept
         if (!pControl) {
             throw std::runtime_error("'" + it->second.Device + "' doesn't contain control '" + it->second.Control + "'");
         }
-        std::string newValue(value);
-        if (it->second.Hint != TControlDesc::FullValue) {
-            auto channels = StringSplit(pControl->GetRawValue(), ';');
-            if (channels.size() != 3) {
-                channels = std::vector<std::string>{"0", "0", "0"};
-            }
-            channels[it->second.Hint] = value;
-            newValue = channels[0] + ";" + channels[1] + ";" + channels[2];
-        }
-        pControl->SetRawValue(tx, newValue).Sync();
-        LOG(Info) << "Set " << GetFullName(pControl) << " = '" << newValue << "'";
+        pControl->SetRawValue(tx, value).Sync();
+        LOG(Info) << "Set " << GetFullName(pControl) << " = '" << value << "'";
         return true;
     } catch (std::exception& e) {
         LOG(Warn) << "Can't execute setup command IOA: " << ioa << ", value: " << value << ": " << e.what();

@@ -58,27 +58,6 @@ Subscribe: /devices/+/controls/+ (QoS 0)
                     "enabled" : false,
                     "iec_type" : "measured value short",
                     "name" : "test3"
-                },
-                {
-                    "address" : 1,
-                    "enabled" : false,
-                    "iec_type" : "measured value scaled, R component",
-                    "info" : "rgb (setup is allowed)",
-                    "name" : "test4"
-                },
-                {
-                    "address" : 3,
-                    "enabled" : false,
-                    "iec_type" : "measured value scaled, G component",
-                    "info" : "rgb (setup is allowed)",
-                    "name" : "test4"
-                },
-                {
-                    "address" : 5,
-                    "enabled" : false,
-                    "iec_type" : "measured value scaled, B component",
-                    "info" : "rgb (setup is allowed)",
-                    "name" : "test4"
                 }
             ],
             "enabled" : true,
@@ -88,7 +67,7 @@ Subscribe: /devices/+/controls/+ (QoS 0)
             "controls" : 
             [
                 {
-                    "address" : 6,
+                    "address" : 1,
                     "enabled" : false,
                     "iec_type" : "measured value short",
                     "info" : "value (read only)",

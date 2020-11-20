@@ -37,7 +37,6 @@ protected:
     PControl      Control1;
     PControl      Control2;
     PControl      Control3;
-    PControl      Control4;
     PControl      ControlNotInConfig;
 
     void SetUp()
@@ -81,12 +80,6 @@ protected:
             .SetValue(123)
         ).GetValue();
 
-        Control4 = device->CreateControl(tx, TControlArgs{}
-            .SetId("test4")
-            .SetType("rgb")
-            .SetValue("10;20;30")
-        ).GetValue();
-
         ControlNotInConfig = device->CreateControl(tx, TControlArgs{}
             .SetId("ControlNotInConfig")
             .SetType("value")
@@ -125,16 +118,9 @@ TEST_F(TGatewayTest, SetParameter)
     ASSERT_TRUE(gw.SetParameter(1, "10.21"));
     ASSERT_TRUE(gw.SetParameter(2, "1"));
     ASSERT_TRUE(gw.SetParameter(3, "-1"));
-    ASSERT_TRUE(gw.SetParameter(4, "5"));
-    ASSERT_TRUE(gw.SetParameter(5, "6"));
-    ASSERT_TRUE(gw.SetParameter(6, "7"));
 
     // Unknown ioa
     ASSERT_FALSE(gw.SetParameter(7, "7"));
-
-    // New rgb value
-    Control4->SetValue(Driver->BeginTx(), "").Sync();
-    ASSERT_TRUE(gw.SetParameter(5, "6"));
 }
 
 TEST_F(TGatewayTest, GetInformationObjectsValues)
@@ -153,7 +139,5 @@ TEST_F(TGatewayTest, OnValueChanged)
     Control1->SetValue(tx, 2.34).Sync();
     Control2->SetValue(tx, true).Sync();
     Control3->SetRawValue(tx, "200").Sync();
-    Control4->SetValue(tx, "1,2,3").Sync();
-    Control4->SetValue(tx, "100;200;300").Sync();
     tx->End();
 }

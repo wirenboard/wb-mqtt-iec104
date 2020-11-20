@@ -97,9 +97,6 @@ It's designed to be used on [Wiren Board](http://contactless.ru/en/) family of p
           //  "single point" - одноэлементная информация (М_SP_NA_1)
           //  "measured value short" - значение измеряемой величины, короткий формат с плавающей запятой (М_ME_NC_1)
           //  "measured value scaled" - масштабированное значение измеряемой величины (М_ME_NB_1)
-          //  "measured value scaled, R component", - масштабированное значение измеряемой величины, R компонент канала типа "rgb"
-          //  "measured value scaled, G component", - масштабированное значение измеряемой величины, G компонент канала типа "rgb"
-          //  "measured value scaled, B component"  - масштабированное значение измеряемой величины, B компонент канала типа "rgb"
           "iec_type" : "measured value short",
 
           // Тип канала (/devices/+/controls/+/meta/type) и возможность записи в него (/devices/+/controls/+/meta/readonly).

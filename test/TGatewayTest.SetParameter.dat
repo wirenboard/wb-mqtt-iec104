@@ -17,21 +17,15 @@ Publish: /devices/test/controls/test3/meta/order: '3' (QoS 1, retained)
 Publish: /devices/test/controls/test3/meta/readonly: '1' (QoS 1, retained)
 Publish: /devices/test/controls/test3/meta/type: 'value' (QoS 1, retained)
 Publish: /devices/test/controls/test3: '123' (QoS 1, retained)
-Publish: /devices/test/controls/test4/meta/error: '' (QoS 1, retained)
-Publish: /devices/test/controls/test4/meta/order: '4' (QoS 1, retained)
-Publish: /devices/test/controls/test4/meta/readonly: '0' (QoS 1, retained)
-Publish: /devices/test/controls/test4/meta/type: 'rgb' (QoS 1, retained)
-Publish: /devices/test/controls/test4: '10;20;30' (QoS 1, retained)
-Subscribe: /devices/test/controls/test4/on (QoS 0)
 Publish: /devices/test/controls/ControlNotInConfig/meta/error: '' (QoS 1, retained)
-Publish: /devices/test/controls/ControlNotInConfig/meta/order: '5' (QoS 1, retained)
+Publish: /devices/test/controls/ControlNotInConfig/meta/order: '4' (QoS 1, retained)
 Publish: /devices/test/controls/ControlNotInConfig/meta/readonly: '1' (QoS 1, retained)
 Publish: /devices/test/controls/ControlNotInConfig/meta/type: 'value' (QoS 1, retained)
 Publish: /devices/test/controls/ControlNotInConfig: '1.230000' (QoS 1, retained)
 Subscribe: /devices/test/meta/+ (QoS 0)
 (retain) -> /devices/test/meta/driver: 'test' (QoS 1, retained)
 Subscribe: /devices/test/controls/+/meta/+ (QoS 0)
-(retain) -> /devices/test/controls/ControlNotInConfig/meta/order: '5' (QoS 1, retained)
+(retain) -> /devices/test/controls/ControlNotInConfig/meta/order: '4' (QoS 1, retained)
 (retain) -> /devices/test/controls/ControlNotInConfig/meta/readonly: '1' (QoS 1, retained)
 (retain) -> /devices/test/controls/ControlNotInConfig/meta/type: 'value' (QoS 1, retained)
 (retain) -> /devices/test/controls/test1/meta/order: '1' (QoS 1, retained)
@@ -43,15 +37,11 @@ Subscribe: /devices/test/controls/+/meta/+ (QoS 0)
 (retain) -> /devices/test/controls/test3/meta/order: '3' (QoS 1, retained)
 (retain) -> /devices/test/controls/test3/meta/readonly: '1' (QoS 1, retained)
 (retain) -> /devices/test/controls/test3/meta/type: 'value' (QoS 1, retained)
-(retain) -> /devices/test/controls/test4/meta/order: '4' (QoS 1, retained)
-(retain) -> /devices/test/controls/test4/meta/readonly: '0' (QoS 1, retained)
-(retain) -> /devices/test/controls/test4/meta/type: 'rgb' (QoS 1, retained)
 Subscribe: /devices/test/controls/+ (QoS 0)
 (retain) -> /devices/test/controls/ControlNotInConfig: '1.230000' (QoS 1, retained)
 (retain) -> /devices/test/controls/test1: '1.230000' (QoS 1, retained)
 (retain) -> /devices/test/controls/test2: '0' (QoS 1, retained)
 (retain) -> /devices/test/controls/test3: '123' (QoS 1, retained)
-(retain) -> /devices/test/controls/test4: '10;20;30' (QoS 1, retained)
 Publish: /devices/test/controls/test1: '10.21' (QoS 1, retained)
 IEC104::IServer::SendSpontaneous
 MShort: 1 = 10.21
@@ -61,24 +51,3 @@ SP: 2 = 1
 Publish: /devices/test/controls/test3: '-1' (QoS 1, retained)
 IEC104::IServer::SendSpontaneous
 MScaled: 3 = -1
-Publish: /devices/test/controls/test4: '5;20;30' (QoS 1, retained)
-IEC104::IServer::SendSpontaneous
-MScaled: 4 = 5
-MScaled: 5 = 20
-MScaled: 6 = 30
-Publish: /devices/test/controls/test4: '5;6;30' (QoS 1, retained)
-IEC104::IServer::SendSpontaneous
-MScaled: 4 = 5
-MScaled: 5 = 6
-MScaled: 6 = 30
-Publish: /devices/test/controls/test4: '5;6;7' (QoS 1, retained)
-IEC104::IServer::SendSpontaneous
-MScaled: 4 = 5
-MScaled: 5 = 6
-MScaled: 6 = 7
-Publish: /devices/test/controls/test4: '' (QoS 1, retained)
-Publish: /devices/test/controls/test4: '0;6;0' (QoS 1, retained)
-IEC104::IServer::SendSpontaneous
-MScaled: 4 = 0
-MScaled: 5 = 6
-MScaled: 6 = 0

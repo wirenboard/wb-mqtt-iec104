@@ -40,10 +40,7 @@
           "enum": [
             "single point",
             "measured value short",
-            "measured value scaled",
-            "measured value scaled, R component",
-            "measured value scaled, G component",
-            "measured value scaled, B component"
+            "measured value scaled"
           ],
           "title": "Information object type",
           "default": "measured value short",

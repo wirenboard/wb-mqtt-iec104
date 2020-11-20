@@ -7,10 +7,7 @@ enum TIecInformationObjectType
 {
     SinglePoint,              //! Single point
     MeasuredValueShort,       //! Measured value short (float)
-    MeasuredValueScaled,      //! Measured value scaled (16-bit signed integer)
-    MeasuredValueScaledR,     //! Measured value scaled (16-bit signed integer), R component of "rgb" MQTT control
-    MeasuredValueScaledG,     //! Measured value scaled (16-bit signed integer), G component of "rgb" MQTT control
-    MeasuredValueScaledB      //! Measured value scaled (16-bit signed integer), B component of "rgb" MQTT control
+    MeasuredValueScaled       //! Measured value scaled (16-bit signed integer)
 };
 
 struct TIecInformationObject
@@ -27,17 +24,8 @@ typedef std::map<std::string, TControlsConfig> TDeviceConfig;
 
 struct TControlDesc
 {
-    enum ParsingHint
-    {
-        RGBValueR = 0, //! Payload is "R;G;B" list. Take R value
-        RGBValueG,     //! Payload is "R;G;B" list. Take G value
-        RGBValueB,     //! Payload is "R;G;B" list. Take B value
-        FullValue      //! Take full payload
-    };
-
     std::string Device;  //! MQTT device name /devices/XXXX
     std::string Control; //! MQTT control name /devices/+/controls/XXXX
-    ParsingHint Hint;    //! Hint used during MQTT payload parsing
 };
 
 class TGateway: public IEC104::IHandler
