@@ -38,13 +38,20 @@
         "iec_type": {
           "type": "string",
           "enum": [
-            "single point",
-            "measured value short",
-            "measured value scaled"
+            "single",
+            "short",
+            "scaled"
           ],
           "title": "Information object type",
           "default": "measured value short",
-          "propertyOrder": 5
+          "propertyOrder": 5,
+          "options": {
+            "enum_titles": [
+              "single point",
+              "measured value short",
+              "measured value scaled"
+            ]
+          }
         }
       },
       "required": ["name", "address", "iec_type"]

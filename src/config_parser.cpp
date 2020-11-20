@@ -21,10 +21,14 @@ using namespace WBMQTT::JSON;
 
 namespace
 {
+    const std::string SINGLE_POINT_CONFIG_VALUE("single");
+    const std::string MEASURED_VALUE_SHORT_CONFIG_VALUE("short");
+    const std::string MEASURED_VALUE_SCALED_CONFIG_VALUE("scaled");
+
     const std::unordered_map<std::string, TIecInformationObjectType> Types = {
-            { "single point",                       SinglePoint },
-            { "measured value short",               MeasuredValueShort },
-            { "measured value scaled",              MeasuredValueScaled }
+            { SINGLE_POINT_CONFIG_VALUE,          SinglePoint },
+            { MEASURED_VALUE_SHORT_CONFIG_VALUE,  MeasuredValueShort },
+            { MEASURED_VALUE_SCALED_CONFIG_VALUE, MeasuredValueScaled }
         };
 
     TIecInformationObjectType GetIoType(const std::string& t)
@@ -143,10 +147,10 @@ namespace
         info += (c->IsReadonly() ? " (read only)" : " (setup is allowed)");
 
         if (c->GetType() == "switch" || c->GetType() == "pushbutton") {
-            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "single point"));
+            root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), SINGLE_POINT_CONFIG_VALUE));
             return;
         }
-        root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), "measured value short"));
+        root.append(MakeControlConfig(c->GetId(), info, aa.GetAddress(), MEASURED_VALUE_SHORT_CONFIG_VALUE));
     }
 
     void UpdateDeviceConfig(Json::Value& deviceConfig, PDevice device, AddressAssigner& addressAssigner)

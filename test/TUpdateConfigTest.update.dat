@@ -44,19 +44,19 @@ Subscribe: /devices/+/controls/+ (QoS 0)
                 {
                     "address" : 2,
                     "enabled" : true,
-                    "iec_type" : "measured value short",
+                    "iec_type" : "short",
                     "name" : "test2"
                 },
                 {
                     "address" : 2,
                     "enabled" : true,
-                    "iec_type" : "measured value short",
+                    "iec_type" : "short",
                     "name" : "test1"
                 },
                 {
                     "address" : 4,
                     "enabled" : false,
-                    "iec_type" : "measured value short",
+                    "iec_type" : "short",
                     "name" : "test3"
                 }
             ],
@@ -69,7 +69,7 @@ Subscribe: /devices/+/controls/+ (QoS 0)
                 {
                     "address" : 1,
                     "enabled" : false,
-                    "iec_type" : "measured value short",
+                    "iec_type" : "short",
                     "info" : "value (read only)",
                     "name" : "test2"
                 }
