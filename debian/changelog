@@ -1,3 +1,15 @@
+wb-mqtt-iec104 (0.3.0) unstable; urgency=medium
+
+  * Support for station interrogation is added.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Thu, 03 Dec 2020 12:50:00 +0500
+
+wb-mqtt-iec104 (0.2.1) unstable; urgency=medium
+
+  * Clock synchronization command handling is added.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Wed, 02 Dec 2020 18:15:00 +0500
+
 wb-mqtt-iec104 (0.2.0) unstable; urgency=medium
 
   * Configuration file format is changed.

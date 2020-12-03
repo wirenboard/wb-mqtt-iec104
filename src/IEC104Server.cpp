@@ -32,6 +32,7 @@ namespace
         bool IsReadyToAcceptConnections() const;
         bool HandleAsdu(IMasterConnection connection, CS101_ASDU asdu);
         void HandleConnectionEvent(IMasterConnection connection, CS104_PeerConnectionEvent event);
+        void HandleInterrogationRequest(IMasterConnection connection, CS101_ASDU asdu, int qoi);
     };
 
     extern "C"
@@ -50,18 +51,31 @@ namespace
         {
             return ((TServerImpl*)parameter)->HandleAsdu(connection, asdu);
         }
+
+        bool ClockSyncHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu, CP56Time2a newTime)
+        {
+            // Do nothing. Just for compatibility with OPC servers
+            return true;
+        }
+
+        bool InterrogationHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu, uint8_t qoi)
+        {
+            ((TServerImpl*)parameter)->HandleInterrogationRequest(connection, asdu, qoi);
+            return true;
+        }
     }
 
     CS101_ASDU Append(InformationObject io,
                       CS101_ASDU asdu,
                       CS101_AppLayerParameters appLayerParameters,
                       int commonAddress,
+                      CS101_CauseOfTransmission cot,
                       std::function<void(CS101_ASDU)> sendFn)
     {
         if (!CS101_ASDU_addInformationObject(asdu, io)) {
             sendFn(asdu);
             CS101_ASDU_destroy(asdu);
-            asdu = CS101_ASDU_create(appLayerParameters, false, CS101_COT_SPONTANEOUS, 0, commonAddress, false, false);
+            asdu = CS101_ASDU_create(appLayerParameters, false, cot, 0, commonAddress, false, false);
             if (!CS101_ASDU_addInformationObject(asdu, io)) {
                 LOG(Warn) << "Can't add information object with address " << InformationObject_getObjectAddress(io) << " to ASDU";
             }
@@ -72,16 +86,18 @@ namespace
 
     void Send(CS101_AppLayerParameters appLayerParameters,
               int commonAddress,
+              CS101_CauseOfTransmission cot,
               const IEC104::TInformationObjects& objs,
               std::function<void(CS101_ASDU)> sendFn)
     {
-        CS101_ASDU asdu = CS101_ASDU_create(appLayerParameters, false, CS101_COT_SPONTANEOUS, 0, commonAddress, false, false);
+        CS101_ASDU asdu = CS101_ASDU_create(appLayerParameters, false, cot, 0, commonAddress, false, false);
 
         for (const auto& val: objs.SinglePoint) {
             asdu = Append((InformationObject)SinglePointInformation_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
                           asdu,
                           appLayerParameters,
                           commonAddress,
+                          cot,
                           sendFn);
         }
 
@@ -90,6 +106,7 @@ namespace
                           asdu,
                           appLayerParameters,
                           commonAddress,
+                          cot,
                           sendFn);
         }
 
@@ -98,6 +115,7 @@ namespace
                           asdu,
                           appLayerParameters,
                           commonAddress,
+                          cot,
                           sendFn);
         }
 
@@ -137,6 +155,8 @@ namespace
         CS104_Slave_setConnectionRequestHandler(Slave, RequestConnectionHandler, this);
         CS104_Slave_setConnectionEventHandler(Slave, ConnectionEventHandler, this);
         CS104_Slave_setASDUHandler(Slave, AsduHandler, this);
+        CS104_Slave_setClockSyncHandler(Slave, ClockSyncHandler, NULL);
+        CS104_Slave_setInterrogationHandler(Slave, InterrogationHandler, this);
 
         // Set server mode to allow multiple clients using the application layer
         CS104_Slave_setServerMode(Slave, CS104_MODE_CONNECTION_IS_REDUNDANCY_GROUP);
@@ -168,7 +188,7 @@ namespace
             throw std::runtime_error("IEC 60870-5-104 is not running");
         }
 
-        Send(AppLayerParameters, CommonAddress, objs, [=](CS101_ASDU asdu) {CS104_Slave_enqueueASDU(Slave, asdu);});
+        Send(AppLayerParameters, CommonAddress, CS101_COT_SPONTANEOUS, objs, [&](CS101_ASDU asdu) {CS104_Slave_enqueueASDU(Slave, asdu);});
     }
 
     bool TServerImpl::IsReadyToAcceptConnections() const
@@ -237,10 +257,32 @@ namespace
                 LOG(Info) << "Connection activated " << addrBuf;
                 Send(AppLayerParameters,
                      CommonAddress,
+                     CS101_COT_SPONTANEOUS,
                      Handler->GetInformationObjectsValues(),
-                     [=](CS101_ASDU asdu) {CS104_Slave_enqueueASDU(Slave, asdu);});
+                     [&](CS101_ASDU asdu) {CS104_Slave_enqueueASDU(Slave, asdu);});
                 break;
             }
+        }
+    }
+
+    void TServerImpl::HandleInterrogationRequest(IMasterConnection connection, CS101_ASDU incomimgAsdu, int qoi)
+    {
+        if (qoi == 20) { /* only handle station interrogation */
+            IMasterConnection_sendACT_CON(connection, incomimgAsdu, false);
+
+            Send(AppLayerParameters,
+                CommonAddress,
+                CS101_COT_INTERROGATED_BY_STATION,
+                Handler->GetInformationObjectsValues(),
+                [&](CS101_ASDU asdu) {IMasterConnection_sendASDU(connection, asdu);});
+
+            IMasterConnection_sendACT_TERM(connection, incomimgAsdu);
+        }
+        else {
+            char addrBuf[24] = {0};
+            IMasterConnection_getPeerAddress(connection, addrBuf, sizeof(addrBuf) - 1);
+            LOG(Warn) << addrBuf << " unsupported interrogation qoi=" << qoi;
+            IMasterConnection_sendACT_CON(connection, incomimgAsdu, true);
         }
     }
 }
