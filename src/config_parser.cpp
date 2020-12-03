@@ -208,9 +208,9 @@ TConfig LoadConfig(const std::string& configFileName, const std::string& configS
     std::set<uint32_t> usedAddresses;
 
     TConfig cfg;
-    cfg.Iec.BindIp        = config["iec"]["host"].asString();
-    cfg.Iec.BindPort      = config["iec"]["port"].asUInt();
-    cfg.Iec.CommonAddress = config["iec"]["address"].asUInt();
+    cfg.Iec.BindIp        = config["iec104"]["host"].asString();
+    cfg.Iec.BindPort      = config["iec104"]["port"].asUInt();
+    cfg.Iec.CommonAddress = config["iec104"]["address"].asUInt();
     cfg.Mqtt              = LoadMqttConfig(config);
     cfg.Devices           = LoadGroups(config, usedAddresses);
     Get(config, "debug", cfg.Debug);
