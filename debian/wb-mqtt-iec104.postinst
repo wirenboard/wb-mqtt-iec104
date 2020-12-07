@@ -1,5 +1,10 @@
 #!/bin/bash
 
-ucf --debconf-ok /usr/share/wb-mqtt-iec104/wb-mqtt-iec104.sample.conf /etc/wb-mqtt-iec104.conf
+
+CONFFILE=/etc/wb-mqtt-iec104.conf
+
+if [! -e $CONFFILE]; then
+    cp /usr/share/wb-mqtt-iec104/wb-mqtt-iec104.sample.conf $CONFFILE
+fi
 
 #DEBHELPER#
