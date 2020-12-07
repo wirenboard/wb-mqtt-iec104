@@ -43,7 +43,8 @@ namespace
              << "                 2 - MQTT only;" << endl
              << "                 3 - both;" << endl
              << "                 negative values - silent mode (-1, -2, -3))" << endl
-             << "  -c  config   config file (default /etc/wb-mqtt-iec104.conf)" << endl;
+             << "  -c  config   config file (default /etc/wb-mqtt-iec104.conf)" << endl
+             << "  -g  config   update config file with information about active MQTT publications" << endl
     }
 
     void ParseCommadLine(int     argc,
