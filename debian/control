@@ -8,5 +8,4 @@ Build-Depends: debhelper (>= 10), pkg-config, libwbmqtt1-dev (>= 1.0.10), libjso
 Package: wb-mqtt-iec104
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libwbmqtt1 (>= 1.0.10), libjsoncpp0 | libjsoncpp1
-Breaks:
 Description: Wiren Board MQTT to IEC 60870-5-104 gateway
