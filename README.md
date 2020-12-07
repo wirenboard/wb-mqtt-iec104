@@ -1,9 +1,9 @@
 # wb-mqtt-iec104
-MQTT to IEC 60870-5-104 gateway which follows [Wiren Board MQTT Conventions](https://github.com/contactless/homeui/blob/master/conventions.md).
-It's designed to be used on [Wiren Board](http://contactless.ru/en/) family of programmable automation controllers (PACs).
+MQTT to IEC 60870-5-104 gateway which follows [Wiren Board MQTT Conventions](https://github.com/wirenboard/homeui/blob/master/conventions.md).
+It's designed to be used on [Wiren Board](https://wirenboard.com/en) family of programmable automation controllers (PACs).
 
 Шлюз предназначен для трансляции сообщений между MQTT брокером и системами с поддержкой протокола [МЭК 60870-5-104](https://ru.wikipedia.org/wiki/IEC_60870-5).
-Шлюз предназначен для устройств [Wiren Board](http://contactless.ru/en/) и соответствует [Конвенции Wiren Board MQTT](https://github.com/contactless/homeui/blob/master/conventions.md).
+Шлюз предназначен для устройств [Wiren Board](https://wirenboard.com/ru) и соответствует [Конвенции Wiren Board MQTT](https://github.com/wirenboard/homeui/blob/master/conventions.md).
 
 Запускается командой `systemctl start wb-mqtt-iec104` или `service wb-mqtt-iec104 start`
 
