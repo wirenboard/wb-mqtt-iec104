@@ -1,3 +1,9 @@
+wb-mqtt-iec104 (1.0.0) unstable; urgency=medium
+
+  * Version bump.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Mon, 07 Dec 2020 13:47:00 +0500
+
 wb-mqtt-iec104 (0.3.0) unstable; urgency=medium
 
   * Support for station interrogation is added.
