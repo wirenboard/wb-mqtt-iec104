@@ -3,7 +3,7 @@
 
 CONFFILE=/etc/wb-mqtt-iec104.conf
 
-if [! -e $CONFFILE]; then
+if [ ! -e $CONFFILE ]; then
     cp /usr/share/wb-mqtt-iec104/wb-mqtt-iec104.sample.conf $CONFFILE
 fi
 
