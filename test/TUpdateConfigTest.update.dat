@@ -1,0 +1,87 @@
+Subscribe: /devices/+/meta/driver (QoS 0)
+Publish: /devices/test/meta/driver: 'test' (QoS 1, retained)
+Publish: /devices/test/meta/name: '' (QoS 1, retained)
+Publish: /devices/test/controls/test2/meta/error: '' (QoS 1, retained)
+Publish: /devices/test/controls/test2/meta/order: '1' (QoS 1, retained)
+Publish: /devices/test/controls/test2/meta/readonly: '1' (QoS 1, retained)
+Publish: /devices/test/controls/test2/meta/type: 'value' (QoS 1, retained)
+Publish: /devices/test/controls/test2: '0' (QoS 1, retained)
+Publish: /devices/test/controls/test4/meta/error: '' (QoS 1, retained)
+Publish: /devices/test/controls/test4/meta/order: '2' (QoS 1, retained)
+Publish: /devices/test/controls/test4/meta/readonly: '0' (QoS 1, retained)
+Publish: /devices/test/controls/test4/meta/type: 'rgb' (QoS 1, retained)
+Publish: /devices/test/controls/test4: '' (QoS 1, retained)
+Subscribe: /devices/test/controls/test4/on (QoS 0)
+Publish: /devices/test2/meta/driver: 'test' (QoS 1, retained)
+Publish: /devices/test2/meta/name: '' (QoS 1, retained)
+Publish: /devices/test2/controls/test2/meta/error: '' (QoS 1, retained)
+Publish: /devices/test2/controls/test2/meta/order: '1' (QoS 1, retained)
+Publish: /devices/test2/controls/test2/meta/readonly: '1' (QoS 1, retained)
+Publish: /devices/test2/controls/test2/meta/type: 'value' (QoS 1, retained)
+Publish: /devices/test2/controls/test2: '0' (QoS 1, retained)
+Subscribe: /devices/+/meta/+ (QoS 0)
+(retain) -> /devices/test/meta/driver: 'test' (QoS 1, retained)
+(retain) -> /devices/test2/meta/driver: 'test' (QoS 1, retained)
+Subscribe: /devices/+/controls/+/meta/+ (QoS 0)
+(retain) -> /devices/test/controls/test2/meta/order: '1' (QoS 1, retained)
+(retain) -> /devices/test/controls/test2/meta/readonly: '1' (QoS 1, retained)
+(retain) -> /devices/test/controls/test2/meta/type: 'value' (QoS 1, retained)
+(retain) -> /devices/test/controls/test4/meta/order: '2' (QoS 1, retained)
+(retain) -> /devices/test/controls/test4/meta/readonly: '0' (QoS 1, retained)
+(retain) -> /devices/test/controls/test4/meta/type: 'rgb' (QoS 1, retained)
+(retain) -> /devices/test2/controls/test2/meta/order: '1' (QoS 1, retained)
+(retain) -> /devices/test2/controls/test2/meta/readonly: '1' (QoS 1, retained)
+(retain) -> /devices/test2/controls/test2/meta/type: 'value' (QoS 1, retained)
+Subscribe: /devices/+/controls/+ (QoS 0)
+(retain) -> /devices/test/controls/test2: '0' (QoS 1, retained)
+(retain) -> /devices/test2/controls/test2: '0' (QoS 1, retained)
+{
+    "groups" : 
+    [
+        {
+            "controls" : 
+            [
+                {
+                    "address" : 2,
+                    "enabled" : true,
+                    "iec_type" : "short",
+                    "topic" : "test/test2"
+                },
+                {
+                    "address" : 2,
+                    "enabled" : true,
+                    "iec_type" : "short",
+                    "topic" : "test/test1"
+                },
+                {
+                    "address" : 4,
+                    "enabled" : false,
+                    "iec_type" : "short",
+                    "topic" : "test/test3"
+                }
+            ],
+            "enabled" : true,
+            "name" : "test"
+        },
+        {
+            "controls" : 
+            [
+                {
+                    "address" : 2487232,
+                    "enabled" : false,
+                    "iec_type" : "short",
+                    "info" : "value (read only)",
+                    "topic" : "test2/test2"
+                }
+            ],
+            "enabled" : false,
+            "name" : "test2"
+        }
+    ],
+    "iec104" : 
+    {
+        "address" : 1,
+        "host" : "",
+        "port" : 2404
+    }
+}

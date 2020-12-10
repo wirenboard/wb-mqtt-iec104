@@ -1,0 +1,17 @@
+*.o
+*.pyc
+.*.swp
+*.deb
+*.changes
+*.dsc
+*.log
+.debhelper
+.ropeproject
+debian/wb-mqtt-iec104
+test/test-app
+*.gcda
+*.gcno
+wb-mqtt-iec104
+
+# Visual Studio Code
+.vscode

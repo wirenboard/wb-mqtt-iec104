@@ -1,0 +1,210 @@
+{
+  "type": "object",
+  "title": "MQTT to IEC 60870-5-104 gateway configuration",
+  "description": "Configure topics to fields mapping and daemon configuration",
+  "configFile": {
+    "path": "/etc/wb-mqtt-iec104.conf",
+    "service": "wb-mqtt-iec104"
+  },
+  "definitions": {
+    "control": {
+      "type": "object",
+      "title": "Control",
+      "headerTemplate": "{{self.name}}",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "propertyOrder": 1,
+          "_format": "checkbox"
+        },
+        "topic": {
+          "type": "string",
+          "title": "MQTT device and control (from topic name)",
+          "propertyOrder": 2
+        },
+        "info": {
+          "type": "string",
+          "title": "For information only",
+          "propertyOrder": 3
+        },
+        "address": {
+          "type": "integer",
+          "title": "Unique IEC information object address",
+          "minimum": 1,
+          "maximum": 16777215,
+          "propertyOrder": 4
+        },
+        "iec_type": {
+          "type": "string",
+          "enum": [
+            "single",
+            "short",
+            "scaled"
+          ],
+          "title": "Information object type",
+          "default": "measured value short",
+          "propertyOrder": 5,
+          "options": {
+            "enum_titles": [
+              "single point",
+              "measured value short",
+              "measured value scaled"
+            ]
+          }
+        }
+      },
+      "required": ["topic", "address", "iec_type"]
+    },
+    "group": {
+      "type": "object",
+      "title": "Group",
+      "headerTemplate": "{{self.name}}",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "propertyOrder": 1,
+          "_format": "checkbox"
+        },
+        "name": {
+          "type": "string",
+          "title": "Group name",
+          "propertyOrder": 2
+        },
+        "controls": {
+          "type": "array",
+          "title": "Controls",
+          "propertyOrder": 3,
+          "_format": "table",
+          "items": {
+            "$ref": "#/definitions/control"
+          },
+          "options": {
+            "disable_array_reorder": true,
+            "disable_collapse": true
+          }
+        }
+      },
+      "required": ["name", "controls"],
+      "options" : {
+        "disable_edit_json" : true,
+        "disable_properties": true,
+        "disable_collapse": true
+      }
+    }
+  },
+  "properties": {
+    "debug": {
+      "type": "boolean",
+      "title": "Enable debug logging",
+      "default": false,
+      "_format": "checkbox",
+      "propertyOrder": 1
+    },
+    "mqtt": {
+      "type": "object",
+      "title": "MQTT connection",
+      "properties": {
+        "host": {
+          "type": "string",
+          "title": "Broker address",
+          "default": "localhost",
+          "propertyOrder": 1
+        },
+        "port": {
+          "type": "integer",
+          "title": "Port",
+          "default": 1883,
+          "minimum": 1,
+          "maximum": 65535,
+          "propertyOrder": 2
+        },
+        "keepalive": {
+          "type": "integer",
+          "title": "Keep-alive interval",
+          "default": 60,
+          "propertyOrder": 3
+        },
+        "auth": {
+          "type": "boolean",
+          "title": "Enable username+password authentification",
+          "default": false,
+          "_format": "checkbox",
+          "propertyOrder": 4
+        },
+        "username": {
+          "type": "string",
+          "title": "Login",
+          "propertyOrder": 5
+        },
+        "password": {
+          "type": "string",
+          "title": "Password",
+          "_format": "password",
+          "propertyOrder": 6
+        }
+      },
+      "required": ["host", "port"],
+      "propertyOrder": 2,
+      "options" : {
+        "disable_edit_json" : true,
+        "disable_collapse" : true
+      }
+    },
+    "iec104": {
+      "type": "object",
+      "title": "IEC 60870-5-104 binding",
+      "properties": {
+        "host": {
+          "type": "string",
+          "title": "Bind address",
+          "description": "Local IP address to bind gateway to. If empty, gateway will listen to all local IP addresses",
+          "propertyOrder": 1
+        },
+        "port": {
+          "type": "integer",
+          "title": "TCP port",
+          "description": "TCP port number to bing gateway to",
+          "default": 2404,
+          "minimum": 1,
+          "maximum": 65535,
+          "propertyOrder": 2
+        },
+        "address": {
+          "type": "integer",
+          "title": "Common address",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 65534,
+          "propertyOrder": 3
+        }
+      },
+      "propertyOrder": 3,
+      "required": ["host", "port", "address"],
+      "options" : {
+        "disable_edit_json" : true,
+        "disable_collapse" : true,
+        "disable_properties": true
+      }
+    },
+    "groups": {
+      "type": "array",
+      "title": "Groups of controls",
+      "propertyOrder": 4,
+      "items": {
+        "$ref": "#/definitions/group"
+      },
+      "options": {
+        "disable_array_reorder": true,
+        "disable_collapse": true
+      },
+      "_format": "tabs"
+    }
+  },
+  "required": ["iec104", "groups"],
+  "options" : {
+    "disable_properties": true,
+    "disable_collapse": true
+  }
+}

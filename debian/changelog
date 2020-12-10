@@ -1,0 +1,35 @@
+wb-mqtt-iec104 (1.0.0) unstable; urgency=medium
+
+  * Version bump.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Mon, 07 Dec 2020 13:47:00 +0500
+
+wb-mqtt-iec104 (0.3.0) unstable; urgency=medium
+
+  * Support for station interrogation is added.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Thu, 03 Dec 2020 12:50:00 +0500
+
+wb-mqtt-iec104 (0.2.1) unstable; urgency=medium
+
+  * Clock synchronization command handling is added.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Wed, 02 Dec 2020 18:15:00 +0500
+
+wb-mqtt-iec104 (0.2.0) unstable; urgency=medium
+
+  * Configuration file format is changed.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Fri, 20 Nov 2020 12:01:00 +0500
+
+wb-mqtt-iec104 (0.1.1) unstable; urgency=medium
+
+  * "rgb" controls support is dropped.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Fri, 20 Nov 2020 09:01:00 +0500
+
+wb-mqtt-iec104 (0.1.0) unstable; urgency=medium
+
+  * Initial release.
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.ru>  Tue, 10 Nov 2020 12:06:00 +0500

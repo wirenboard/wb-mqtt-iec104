@@ -1,0 +1,14 @@
+[Unit]
+Description=Wiren Board MQTT to IEC 60870-5-104 gateway
+After=mosquitto.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/usr/bin/wb-mqtt-iec104
+ExecStartPre=/usr/bin/wb-mqtt-iec104 -g /etc/wb-mqtt-iec104.conf
+
+[Install]
+WantedBy=multi-user.target
