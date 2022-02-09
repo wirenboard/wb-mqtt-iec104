@@ -54,7 +54,7 @@ COMMON_OBJS += $(LIB60870_OBJS)
 
 LIB60870_INCLUDES = -I$(LIB60870_DIR)/inc/api -I$(LIB60870_DIR)/inc/internal -I$(LIB60870_DIR)/common/inc -I$(LIB60870_DIR)/hal/inc
 
-LDFLAGS = -lwbmqtt1 -ljsoncpp -lpthread
+LDFLAGS = -lwbmqtt1 -lpthread
 CXXFLAGS = -std=c++14 -Wall -Werror $(LIB60870_INCLUDES)
 CFLAGS = -Wall $(LIB60870_INCLUDES) -I$(SRC_DIR)
 

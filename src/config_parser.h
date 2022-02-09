@@ -1,5 +1,5 @@
 #include "gateway.h"
-#include <jsoncpp/json/json.h>
+#include <wblib/json/json.h>
 
 struct TConfig
 {
