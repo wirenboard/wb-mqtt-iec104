@@ -219,14 +219,16 @@ TConfig LoadConfig(const std::string& configFileName, const std::string& configS
 
 void UpdateConfig(const string& configFileName, const string& configSchemaFileName)
 {
+    const auto id = "wb-mqtt-iec104-config_generator";
     auto config = JSON::Parse(configFileName);
     JSON::Validate(config, JSON::Parse(configSchemaFileName));
 
     WBMQTT::TMosquittoMqttConfig mqttConfig(LoadMqttConfig(config));
+    mqttConfig.Id = id;
     auto mqtt = NewMosquittoMqttClient(mqttConfig);
     auto backend = NewDriverBackend(mqtt);
     auto driver = NewDriver(TDriverArgs{}
-        .SetId("wb-mqtt-iec104-config_generator")
+        .SetId(id)
         .SetBackend(backend)
     );
     driver->StartLoop();
