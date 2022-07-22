@@ -38,7 +38,7 @@ namespace
         cout << "Usage:" << endl
              << " " << APP_NAME << " [options]" << endl
              << "Options:" << endl
-             << "  -d  level    enable debuging output:" << endl
+             << "  -d  level    enable debugging output:" << endl
              << "                 1 - " << APP_NAME << " only;" << endl
              << "                 2 - MQTT only;" << endl
              << "                 3 - both;" << endl
@@ -47,7 +47,7 @@ namespace
              << "  -g  config   update config file with information about active MQTT publications" << endl;
     }
 
-    void ParseCommadLine(int     argc,
+    void ParseCommandLine(int     argc,
                          char*   argv[],
                          string& configFile)
     {
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     SignalHandling::OnSignals({ SIGINT, SIGTERM }, [&]{ SignalHandling::Stop(); });
     SetThreadName(APP_NAME);
 
-    ParseCommadLine(argc, argv, configFile);
+    ParseCommandLine(argc, argv, configFile);
 
     PrintStartupInfo();
 
@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
 
     try {
         TConfig config(LoadConfig(configFile, CONFIG_JSON_SCHEMA_FULL_FILE_PATH));
+        config.Mqtt.Id = APP_NAME;
         if (config.Debug) {
             ::Debug.SetEnabled(true);
         }
