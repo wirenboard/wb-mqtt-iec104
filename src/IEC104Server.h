@@ -1,31 +1,31 @@
 #pragma once
 
-#include <string>
 #include <memory>
-#include <vector>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace IEC104
 {
     //! IEC104 server configuration parameters
     struct TServerConfig
     {
-        //! Local IP to bind the server. If empty, the server will listen to all available local IP's 
+        //! Local IP to bind the server. If empty, the server will listen to all available local IP's
         std::string BindIp;
 
         //! Port to listen
-        uint16_t    BindPort;
+        uint16_t BindPort;
 
         //! IEC common address
-        uint32_t    CommonAddress;
+        uint32_t CommonAddress;
     };
 
     //! IEC information objects. Vectors of pairs "information object address"-"value"
     struct TInformationObjects
     {
-        std::vector<std::pair<uint32_t, bool>>  SinglePoint;
+        std::vector<std::pair<uint32_t, bool>> SinglePoint;
         std::vector<std::pair<uint32_t, float>> MeasuredValueShort;
-        std::vector<std::pair<uint32_t, int>>   MeasuredValueScaled;
+        std::vector<std::pair<uint32_t, int>> MeasuredValueScaled;
     };
 
     //! Interface of external event handler
@@ -40,10 +40,11 @@ namespace IEC104
         /**
          * @brief Process value received with IEC command.
          *        Must be threadsafe.
-         * 
+         *
          * @param ioa information object address of command
          * @param value value recieved from command
-         * @return true - received value successfully processed by handler. Positive acknowledgement to command will be send
+         * @return true - received value successfully processed by handler. Positive acknowledgement to command will be
+         * send
          * @return false - an error occured during processing. Negative response to command will be send
          */
         virtual bool SetParameter(uint32_t ioa, const std::string& value) noexcept = 0;
@@ -61,7 +62,7 @@ namespace IEC104
         /**
          * @brief Send messages with spontaneous cause of transmission (3).
          *        Must be threadsafe.
-         * 
+         *
          * @param obj information objects to send
          */
         virtual void SendSpontaneous(const TInformationObjects& obj) = 0;

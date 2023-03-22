@@ -1,18 +1,18 @@
 #pragma once
 
-#include <wblib/wbmqtt.h>
 #include "IEC104Server.h"
+#include <wblib/wbmqtt.h>
 
 enum TIecInformationObjectType
 {
-    SinglePoint,              //! Single point
-    MeasuredValueShort,       //! Measured value short (float)
-    MeasuredValueScaled       //! Measured value scaled (16-bit signed integer)
+    SinglePoint,        //! Single point
+    MeasuredValueShort, //! Measured value short (float)
+    MeasuredValueScaled //! Measured value scaled (16-bit signed integer)
 };
 
 struct TIecInformationObject
 {
-    uint32_t                  Address; //! Information object address
+    uint32_t Address; //! Information object address
     TIecInformationObjectType Type;
 };
 
@@ -30,20 +30,21 @@ struct TControlDesc
 
 class TGateway: public IEC104::IHandler
 {
-        WBMQTT::PDeviceDriver            Driver;
-        TDeviceConfig                    Devices;
-        IEC104::IServer*                 IecServer;
-        std::map<uint32_t, TControlDesc> IoaToControls; // Maps information object address to MQTT control
+    WBMQTT::PDeviceDriver Driver;
+    TDeviceConfig Devices;
+    IEC104::IServer* IecServer;
+    std::map<uint32_t, TControlDesc> IoaToControls; // Maps information object address to MQTT control
 
-        //! MQTT value changing handler
-        void OnValueChanged(const WBMQTT::TControlValueEvent& event);
-    public:
-        TGateway(WBMQTT::PDeviceDriver driver, IEC104::IServer* iecServer, const TDeviceConfig& devices);
+    //! MQTT value changing handler
+    void OnValueChanged(const WBMQTT::TControlValueEvent& event);
 
-        //! Stop the server
-        void Stop();
+public:
+    TGateway(WBMQTT::PDeviceDriver driver, IEC104::IServer* iecServer, const TDeviceConfig& devices);
 
-        // IEC104::IHandler implementation
-        IEC104::TInformationObjects GetInformationObjectsValues() const noexcept;
-        bool SetParameter(uint32_t ioa, const std::string& value) noexcept;
+    //! Stop the server
+    void Stop();
+
+    // IEC104::IHandler implementation
+    IEC104::TInformationObjects GetInformationObjectsValues() const noexcept;
+    bool SetParameter(uint32_t ioa, const std::string& value) noexcept;
 };

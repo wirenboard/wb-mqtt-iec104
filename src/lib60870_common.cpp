@@ -22,44 +22,38 @@
 #include "iec60870_common.h"
 #include "log.h"
 
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
-extern "C"
+extern "C" {
+void lib60870_debug_print(const char* format, ...)
 {
-    void
-    lib60870_debug_print(const char *format, ...)
-    {
-        if (Debug.IsEnabled()) {
-            char buf[128] = {};
-            va_list ap;
-            va_start(ap, format);
-            vsnprintf(buf, sizeof(buf), format, ap);
-            va_end(ap);
-            auto l = strlen(buf);
-            if (l > 0) {
-                buf[l-1] = 0;
-            }
-            Debug.Log() << "[IEC] " << buf;
+    if (Debug.IsEnabled()) {
+        char buf[128] = {};
+        va_list ap;
+        va_start(ap, format);
+        vsnprintf(buf, sizeof(buf), format, ap);
+        va_end(ap);
+        auto l = strlen(buf);
+        if (l > 0) {
+            buf[l - 1] = 0;
         }
+        Debug.Log() << "[IEC] " << buf;
     }
+}
 
-    void
-    Lib60870_enableDebugOutput(bool)
-    { }
+void Lib60870_enableDebugOutput(bool)
+{}
 
+Lib60870VersionInfo Lib60870_getLibraryVersionInfo()
+{
+    Lib60870VersionInfo versionInfo;
 
-    Lib60870VersionInfo
-    Lib60870_getLibraryVersionInfo()
-    {
-        Lib60870VersionInfo versionInfo;
+    versionInfo.major = LIB60870_VERSION_MAJOR;
+    versionInfo.minor = LIB60870_VERSION_MINOR;
+    versionInfo.patch = LIB60870_VERSION_PATCH;
 
-        versionInfo.major = LIB60870_VERSION_MAJOR;
-        versionInfo.minor = LIB60870_VERSION_MINOR;
-        versionInfo.patch = LIB60870_VERSION_PATCH;
-
-        return versionInfo;
-    }
-
+    return versionInfo;
+}
 }

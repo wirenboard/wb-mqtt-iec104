@@ -4,10 +4,10 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include <wblib/testing/testlog.h>
+#include <wblib/json_utils.h>
 #include <wblib/testing/fake_driver.h>
 #include <wblib/testing/fake_mqtt.h>
-#include <wblib/json_utils.h>
+#include <wblib/testing/testlog.h>
 
 using namespace WBMQTT;
 
@@ -30,14 +30,14 @@ namespace
 class TGatewayTest: public Testing::TLoggedFixture
 {
 protected:
-    std::string   TestRootDir;
-    std::string   SchemaFile;
+    std::string TestRootDir;
+    std::string SchemaFile;
     PDeviceDriver Driver;
     TDeviceConfig Config;
-    PControl      Control1;
-    PControl      Control2;
-    PControl      Control3;
-    PControl      ControlNotInConfig;
+    PControl Control1;
+    PControl Control2;
+    PControl Control3;
+    PControl ControlNotInConfig;
 
     void SetUp()
     {
@@ -47,10 +47,7 @@ protected:
         auto mqttBroker = Testing::NewFakeMqttBroker(*this);
         auto mqttClient = mqttBroker->MakeClient("test");
         auto backend = NewDriverBackend(mqttClient);
-        Driver = NewDriver(TDriverArgs{}
-            .SetId("test")
-            .SetBackend(backend)
-        );
+        Driver = NewDriver(TDriverArgs{}.SetId("test").SetBackend(backend));
 
         Driver->StartLoop();
         Driver->WaitForReady();
@@ -58,33 +55,18 @@ protected:
         Config = LoadConfig(TestRootDir + "/config.conf", SchemaFile).Devices;
 
         auto tx = Driver->BeginTx();
-        auto device = tx->CreateDevice(TLocalDeviceArgs{}
-            .SetId("test")
-        ).GetValue();
+        auto device = tx->CreateDevice(TLocalDeviceArgs{}.SetId("test")).GetValue();
 
-        Control1 = device->CreateControl(tx, TControlArgs{}
-            .SetId("test1")
-            .SetType("value")
-            .SetValue(1.23)
-        ).GetValue();
+        Control1 = device->CreateControl(tx, TControlArgs{}.SetId("test1").SetType("value").SetValue(1.23)).GetValue();
 
-        Control2 = device->CreateControl(tx, TControlArgs{}
-            .SetId("test2")
-            .SetType("switch")
-            .SetValue(false)
-        ).GetValue();
+        Control2 =
+            device->CreateControl(tx, TControlArgs{}.SetId("test2").SetType("switch").SetValue(false)).GetValue();
 
-        Control3 = device->CreateControl(tx, TControlArgs{}
-            .SetId("test3")
-            .SetType("value")
-            .SetValue(123)
-        ).GetValue();
+        Control3 = device->CreateControl(tx, TControlArgs{}.SetId("test3").SetType("value").SetValue(123)).GetValue();
 
-        ControlNotInConfig = device->CreateControl(tx, TControlArgs{}
-            .SetId("ControlNotInConfig")
-            .SetType("value")
-            .SetValue(1.23)
-        ).GetValue();
+        ControlNotInConfig =
+            device->CreateControl(tx, TControlArgs{}.SetId("ControlNotInConfig").SetType("value").SetValue(1.23))
+                .GetValue();
         tx->End();
     }
 };
@@ -92,6 +74,7 @@ protected:
 class TFakeIecServer: public IEC104::IServer
 {
     Testing::TLoggedFixture& Fixture;
+
 public:
     TFakeIecServer(Testing::TLoggedFixture& fixture): Fixture(fixture)
     {}

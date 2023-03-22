@@ -1,10 +1,10 @@
 #include "IEC104Server.h"
 
-#include <stdexcept>
 #include <functional>
+#include <stdexcept>
 
-#include "iec60870_slave.h"
 #include "cs104_slave.h"
+#include "iec60870_slave.h"
 
 #include "hal_thread.h"
 #include "hal_time.h"
@@ -17,10 +17,11 @@ namespace
 {
     class TServerImpl: public IEC104::IServer
     {
-        CS104_Slave              Slave;
+        CS104_Slave Slave;
         CS101_AppLayerParameters AppLayerParameters;
-        uint32_t                 CommonAddress;
-        IEC104::IHandler*        Handler;
+        uint32_t CommonAddress;
+        IEC104::IHandler* Handler;
+
     public:
         TServerImpl(const IEC104::TServerConfig& config);
         ~TServerImpl();
@@ -35,34 +36,33 @@ namespace
         void HandleInterrogationRequest(IMasterConnection connection, CS101_ASDU asdu, int qoi);
     };
 
-    extern "C"
+    extern "C" {
+    bool RequestConnectionHandler(void* parameter, const char* ipAddress)
     {
-        bool RequestConnectionHandler(void* parameter, const char* ipAddress)
-        {
-            return ((TServerImpl*)parameter)->IsReadyToAcceptConnections();
-        }
+        return ((TServerImpl*)parameter)->IsReadyToAcceptConnections();
+    }
 
-        void ConnectionEventHandler(void* parameter, IMasterConnection connection, CS104_PeerConnectionEvent event)
-        {
-            return ((TServerImpl*)parameter)->HandleConnectionEvent(connection, event);
-        }
+    void ConnectionEventHandler(void* parameter, IMasterConnection connection, CS104_PeerConnectionEvent event)
+    {
+        return ((TServerImpl*)parameter)->HandleConnectionEvent(connection, event);
+    }
 
-        bool AsduHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu)
-        {
-            return ((TServerImpl*)parameter)->HandleAsdu(connection, asdu);
-        }
+    bool AsduHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu)
+    {
+        return ((TServerImpl*)parameter)->HandleAsdu(connection, asdu);
+    }
 
-        bool ClockSyncHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu, CP56Time2a newTime)
-        {
-            // Do nothing. Just for compatibility with OPC servers
-            return true;
-        }
+    bool ClockSyncHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu, CP56Time2a newTime)
+    {
+        // Do nothing. Just for compatibility with OPC servers
+        return true;
+    }
 
-        bool InterrogationHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu, uint8_t qoi)
-        {
-            ((TServerImpl*)parameter)->HandleInterrogationRequest(connection, asdu, qoi);
-            return true;
-        }
+    bool InterrogationHandler(void* parameter, IMasterConnection connection, CS101_ASDU asdu, uint8_t qoi)
+    {
+        ((TServerImpl*)parameter)->HandleInterrogationRequest(connection, asdu, qoi);
+        return true;
+    }
     }
 
     CS101_ASDU Append(InformationObject io,
@@ -77,7 +77,8 @@ namespace
             CS101_ASDU_destroy(asdu);
             asdu = CS101_ASDU_create(appLayerParameters, false, cot, 0, commonAddress, false, false);
             if (!CS101_ASDU_addInformationObject(asdu, io)) {
-                LOG(Warn) << "Can't add information object with address " << InformationObject_getObjectAddress(io) << " to ASDU";
+                LOG(Warn) << "Can't add information object with address " << InformationObject_getObjectAddress(io)
+                          << " to ASDU";
             }
         }
         InformationObject_destroy(io);
@@ -93,30 +94,33 @@ namespace
         CS101_ASDU asdu = CS101_ASDU_create(appLayerParameters, false, cot, 0, commonAddress, false, false);
 
         for (const auto& val: objs.SinglePoint) {
-            asdu = Append((InformationObject)SinglePointInformation_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
-                          asdu,
-                          appLayerParameters,
-                          commonAddress,
-                          cot,
-                          sendFn);
+            asdu = Append(
+                (InformationObject)SinglePointInformation_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
+                asdu,
+                appLayerParameters,
+                commonAddress,
+                cot,
+                sendFn);
         }
 
         for (const auto& val: objs.MeasuredValueShort) {
-            asdu = Append((InformationObject)MeasuredValueShort_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
-                          asdu,
-                          appLayerParameters,
-                          commonAddress,
-                          cot,
-                          sendFn);
+            asdu =
+                Append((InformationObject)MeasuredValueShort_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
+                       asdu,
+                       appLayerParameters,
+                       commonAddress,
+                       cot,
+                       sendFn);
         }
 
         for (const auto& val: objs.MeasuredValueScaled) {
-            asdu = Append((InformationObject)MeasuredValueScaled_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
-                          asdu,
-                          appLayerParameters,
-                          commonAddress,
-                          cot,
-                          sendFn);
+            asdu = Append(
+                (InformationObject)MeasuredValueScaled_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
+                asdu,
+                appLayerParameters,
+                commonAddress,
+                cot,
+                sendFn);
         }
 
         if (CS101_ASDU_getPayloadSize(asdu)) {
@@ -125,7 +129,7 @@ namespace
         CS101_ASDU_destroy(asdu);
     }
 
-    void HandleCommand(CS101_ASDU        asdu,
+    void HandleCommand(CS101_ASDU asdu,
                        IMasterConnection connection,
                        IEC104::IHandler* handler,
                        std::function<std::string(InformationObject io)> fn)
@@ -143,8 +147,7 @@ namespace
         IMasterConnection_sendASDU(connection, asdu);
     }
 
-    TServerImpl::TServerImpl(const IEC104::TServerConfig& config)
-        : CommonAddress(config.CommonAddress), Handler(nullptr)
+    TServerImpl::TServerImpl(const IEC104::TServerConfig& config): CommonAddress(config.CommonAddress), Handler(nullptr)
     {
         Slave = CS104_Slave_create(100, 100);
 
@@ -188,7 +191,9 @@ namespace
             throw std::runtime_error("IEC 60870-5-104 is not running");
         }
 
-        Send(AppLayerParameters, CommonAddress, CS101_COT_SPONTANEOUS, objs, [&](CS101_ASDU asdu) {CS104_Slave_enqueueASDU(Slave, asdu);});
+        Send(AppLayerParameters, CommonAddress, CS101_COT_SPONTANEOUS, objs, [&](CS101_ASDU asdu) {
+            CS104_Slave_enqueueASDU(Slave, asdu);
+        });
     }
 
     bool TServerImpl::IsReadyToAcceptConnections() const
@@ -215,31 +220,24 @@ namespace
             LOG(Debug) << "Got ASDU: " << TypeID_toString(asduType)
                        << ", COT: " << CS101_CauseOfTransmission_toString(CS101_ASDU_getCOT(asdu));
         }
-        switch (asduType)
-        {
-        case C_SC_NA_1: // Single command
-            HandleCommand(asdu, connection, Handler,
-                            [](InformationObject io)
-                            {
-                                return (SingleCommand_getState((SingleCommand)io) ? "1" : "0");
-                            });
-            return true;
-        case C_SE_NB_1: // Measured value scaled command
-            HandleCommand(asdu, connection, Handler,
-                            [](InformationObject io)
-                            {
-                                return std::to_string(MeasuredValueScaled_getValue((MeasuredValueScaled)io));
-                            });
-            return true;
-        case C_SE_NC_1: // Measured value short command
-            HandleCommand(asdu, connection, Handler,
-                            [](InformationObject io)
-                            {
-                                return std::to_string(MeasuredValueShort_getValue((MeasuredValueShort)io));
-                            });
-            return true;
-        default:
-            break;
+        switch (asduType) {
+            case C_SC_NA_1: // Single command
+                HandleCommand(asdu, connection, Handler, [](InformationObject io) {
+                    return (SingleCommand_getState((SingleCommand)io) ? "1" : "0");
+                });
+                return true;
+            case C_SE_NB_1: // Measured value scaled command
+                HandleCommand(asdu, connection, Handler, [](InformationObject io) {
+                    return std::to_string(MeasuredValueScaled_getValue((MeasuredValueScaled)io));
+                });
+                return true;
+            case C_SE_NC_1: // Measured value short command
+                HandleCommand(asdu, connection, Handler, [](InformationObject io) {
+                    return std::to_string(MeasuredValueShort_getValue((MeasuredValueShort)io));
+                });
+                return true;
+            default:
+                break;
         }
         return false;
     }
@@ -248,18 +246,23 @@ namespace
     {
         char addrBuf[24] = {0};
         IMasterConnection_getPeerAddress(connection, addrBuf, sizeof(addrBuf) - 1);
-        switch (event)
-        {
-            case CS104_CON_EVENT_CONNECTION_OPENED: LOG(Info) << "Connection opened " << addrBuf; break;
-            case CS104_CON_EVENT_CONNECTION_CLOSED: LOG(Info) << "Connection closed " << addrBuf; break;
-            case CS104_CON_EVENT_DEACTIVATED:       LOG(Info) << "Connection deactivated " << addrBuf; break;
+        switch (event) {
+            case CS104_CON_EVENT_CONNECTION_OPENED:
+                LOG(Info) << "Connection opened " << addrBuf;
+                break;
+            case CS104_CON_EVENT_CONNECTION_CLOSED:
+                LOG(Info) << "Connection closed " << addrBuf;
+                break;
+            case CS104_CON_EVENT_DEACTIVATED:
+                LOG(Info) << "Connection deactivated " << addrBuf;
+                break;
             case CS104_CON_EVENT_ACTIVATED: {
                 LOG(Info) << "Connection activated " << addrBuf;
                 Send(AppLayerParameters,
                      CommonAddress,
                      CS101_COT_SPONTANEOUS,
                      Handler->GetInformationObjectsValues(),
-                     [&](CS101_ASDU asdu) {CS104_Slave_enqueueASDU(Slave, asdu);});
+                     [&](CS101_ASDU asdu) { CS104_Slave_enqueueASDU(Slave, asdu); });
                 break;
             }
         }
@@ -271,14 +274,13 @@ namespace
             IMasterConnection_sendACT_CON(connection, incomimgAsdu, false);
 
             Send(AppLayerParameters,
-                CommonAddress,
-                CS101_COT_INTERROGATED_BY_STATION,
-                Handler->GetInformationObjectsValues(),
-                [&](CS101_ASDU asdu) {IMasterConnection_sendASDU(connection, asdu);});
+                 CommonAddress,
+                 CS101_COT_INTERROGATED_BY_STATION,
+                 Handler->GetInformationObjectsValues(),
+                 [&](CS101_ASDU asdu) { IMasterConnection_sendASDU(connection, asdu); });
 
             IMasterConnection_sendACT_TERM(connection, incomimgAsdu);
-        }
-        else {
+        } else {
             char addrBuf[24] = {0};
             IMasterConnection_getPeerAddress(connection, addrBuf, sizeof(addrBuf) - 1);
             LOG(Warn) << addrBuf << " unsupported interrogation qoi=" << qoi;

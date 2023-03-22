@@ -1,15 +1,15 @@
 #include "config_parser.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <queue>
 #include <set>
 #include <unordered_set>
 
 #include <sys/stat.h>
 
-#include <wblib/wbmqtt.h>
 #include <wblib/json_utils.h>
+#include <wblib/wbmqtt.h>
 
 #include "log.h"
 #include "murmurhash.h"
@@ -27,10 +27,9 @@ namespace
     const std::string MEASURED_VALUE_SCALED_CONFIG_VALUE("scaled");
 
     const std::unordered_map<std::string, TIecInformationObjectType> Types = {
-            { SINGLE_POINT_CONFIG_VALUE,          SinglePoint },
-            { MEASURED_VALUE_SHORT_CONFIG_VALUE,  MeasuredValueShort },
-            { MEASURED_VALUE_SCALED_CONFIG_VALUE, MeasuredValueScaled }
-        };
+        {SINGLE_POINT_CONFIG_VALUE, SinglePoint},
+        {MEASURED_VALUE_SHORT_CONFIG_VALUE, MeasuredValueShort},
+        {MEASURED_VALUE_SCALED_CONFIG_VALUE, MeasuredValueScaled}};
 
     TIecInformationObjectType GetIoType(const std::string& t)
     {
@@ -70,7 +69,8 @@ namespace
                         LOG(Warn) << "Control '" << topic << "' has duplicate address " << ioa;
                     } else {
                         UsedAddresses.insert(ioa);
-                        config[GetDeviceName(topic)].insert({GetControlName(topic), { ioa, GetIoType(control["iec_type"].asString()) }});
+                        config[GetDeviceName(topic)].insert(
+                            {GetControlName(topic), {ioa, GetIoType(control["iec_type"].asString())}});
                     }
                 } else {
                     LOG(Warn) << "Control '" << topic << "' has invalid topic name";
@@ -111,27 +111,28 @@ namespace
 
     class AddressAssigner
     {
-            std::set<uint32_t> UsedAddresses;
-        public:
-            AddressAssigner(const Json::Value& config)
-            {
-                for (const auto& device: config["devices"]) {
-                    for (const auto& control: device["controls"]) {
-                        UsedAddresses.insert(control["address"].asUInt());
-                    }
-                }
-            }
+        std::set<uint32_t> UsedAddresses;
 
-            uint32_t GetAddress(const std::string& topicName)
-            {
-                uint32_t newAddr = MurmurHash2A((const uint8_t*)topicName.data(), topicName.size(), 0xA30AA568) & 0xFFFFFF;
-                const uint32_t ADDR_SALT = 7079;
-                while (UsedAddresses.count(newAddr)) {
-                    newAddr = (newAddr + ADDR_SALT) & 0xFFFFFF;
+    public:
+        AddressAssigner(const Json::Value& config)
+        {
+            for (const auto& device: config["devices"]) {
+                for (const auto& control: device["controls"]) {
+                    UsedAddresses.insert(control["address"].asUInt());
                 }
-                UsedAddresses.insert(newAddr);
-                return newAddr;
             }
+        }
+
+        uint32_t GetAddress(const std::string& topicName)
+        {
+            uint32_t newAddr = MurmurHash2A((const uint8_t*)topicName.data(), topicName.size(), 0xA30AA568) & 0xFFFFFF;
+            const uint32_t ADDR_SALT = 7079;
+            while (UsedAddresses.count(newAddr)) {
+                newAddr = (newAddr + ADDR_SALT) & 0xFFFFFF;
+            }
+            UsedAddresses.insert(newAddr);
+            return newAddr;
+        }
     };
 
     bool IsConvertibleControl(PControl control)
@@ -139,7 +140,10 @@ namespace
         return (control->GetType() != "text" && control->GetType() != "rgb");
     }
 
-    Json::Value MakeControlConfig(const std::string& topic, const std::string& info, uint32_t addr, const std::string& iecType)
+    Json::Value MakeControlConfig(const std::string& topic,
+                                  const std::string& info,
+                                  uint32_t addr,
+                                  const std::string& iecType)
     {
         Json::Value cnt(Json::objectValue);
         cnt["topic"] = topic;
@@ -153,10 +157,8 @@ namespace
     void AppendControl(Json::Value& root, PControl c, AddressAssigner& aa)
     {
         if (!IsConvertibleControl(c)) {
-            ::Warn.Log() << "'" << c->GetId()
-                            << "' of type '" << c->GetType()
-                            << "' from device '" << c->GetDevice()->GetId()
-                            << "' is not convertible to IEC 608760-5-104 information object";
+            ::Warn.Log() << "'" << c->GetId() << "' of type '" << c->GetType() << "' from device '"
+                         << c->GetDevice()->GetId() << "' is not convertible to IEC 608760-5-104 information object";
             return;
         }
 
@@ -169,7 +171,8 @@ namespace
             root.append(MakeControlConfig(controlName, info, aa.GetAddress(controlName), SINGLE_POINT_CONFIG_VALUE));
             return;
         }
-        root.append(MakeControlConfig(controlName, info, aa.GetAddress(controlName), MEASURED_VALUE_SHORT_CONFIG_VALUE));
+        root.append(
+            MakeControlConfig(controlName, info, aa.GetAddress(controlName), MEASURED_VALUE_SHORT_CONFIG_VALUE));
     }
 
     Json::Value MakeControlsConfig(std::map<std::string, PControl>& controls, AddressAssigner& addressAssigner)
@@ -208,11 +211,11 @@ TConfig LoadConfig(const std::string& configFileName, const std::string& configS
     std::set<uint32_t> usedAddresses;
 
     TConfig cfg;
-    cfg.Iec.BindIp        = config["iec104"]["host"].asString();
-    cfg.Iec.BindPort      = config["iec104"]["port"].asUInt();
+    cfg.Iec.BindIp = config["iec104"]["host"].asString();
+    cfg.Iec.BindPort = config["iec104"]["port"].asUInt();
     cfg.Iec.CommonAddress = config["iec104"]["address"].asUInt();
-    cfg.Mqtt              = LoadMqttConfig(config);
-    cfg.Devices           = LoadGroups(config, usedAddresses);
+    cfg.Mqtt = LoadMqttConfig(config);
+    cfg.Devices = LoadGroups(config, usedAddresses);
     Get(config, "debug", cfg.Debug);
     return cfg;
 }
@@ -227,10 +230,7 @@ void UpdateConfig(const string& configFileName, const string& configSchemaFileNa
     mqttConfig.Id = id;
     auto mqtt = NewMosquittoMqttClient(mqttConfig);
     auto backend = NewDriverBackend(mqtt);
-    auto driver = NewDriver(TDriverArgs{}
-        .SetId(id)
-        .SetBackend(backend)
-    );
+    auto driver = NewDriver(TDriverArgs{}.SetId(id).SetBackend(backend));
     driver->StartLoop();
     UpdateConfig(driver, config);
     driver->StopLoop();

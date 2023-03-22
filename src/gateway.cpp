@@ -9,37 +9,37 @@ using namespace WBMQTT;
 
 namespace
 {
-    bool Append(IEC104::TInformationObjects& objs, PControl control, const std::string& v, const TIecInformationObject& obj) noexcept
+    bool Append(IEC104::TInformationObjects& objs,
+                PControl control,
+                const std::string& v,
+                const TIecInformationObject& obj) noexcept
     {
         if (v.empty()) {
             return false;
         }
 
         try {
-            switch (obj.Type)
-            {
-            case SinglePoint:
-                if (v == "0") {
-                    objs.SinglePoint.emplace_back(std::make_pair(obj.Address, false));
+            switch (obj.Type) {
+                case SinglePoint:
+                    if (v == "0") {
+                        objs.SinglePoint.emplace_back(std::make_pair(obj.Address, false));
+                        return true;
+                    }
+                    if (v == "1") {
+                        objs.SinglePoint.emplace_back(std::make_pair(obj.Address, true));
+                        return true;
+                    }
+                    throw std::runtime_error(v + " is not convertible to bool");
+                case MeasuredValueShort:
+                    objs.MeasuredValueShort.emplace_back(std::make_pair(obj.Address, stof(v)));
                     return true;
-                }
-                if (v == "1") {
-                    objs.SinglePoint.emplace_back(std::make_pair(obj.Address, true));
+                case MeasuredValueScaled:
+                    objs.MeasuredValueScaled.emplace_back(std::make_pair(obj.Address, stoi(v)));
                     return true;
-                }
-                throw std::runtime_error(v + " is not convertible to bool");
-            case MeasuredValueShort:
-                objs.MeasuredValueShort.emplace_back(std::make_pair(obj.Address, stof(v)));
-                return true;
-            case MeasuredValueScaled:
-                objs.MeasuredValueScaled.emplace_back(std::make_pair(obj.Address, stoi(v)));
-                return true;
             }
         } catch (const std::exception& e) {
-            LOG(Warn) << "'" << control->GetDevice()->GetId()
-                    << "'/'" << control->GetId()
-                    << "' = '" << v 
-                    << "' is not convertible to IEC 608760-5-104 information object: " << e.what();
+            LOG(Warn) << "'" << control->GetDevice()->GetId() << "'/'" << control->GetId() << "' = '" << v
+                      << "' is not convertible to IEC 608760-5-104 information object: " << e.what();
         }
         return false;
     }
@@ -77,7 +77,7 @@ TGateway::TGateway(PDeviceDriver driver, IEC104::IServer* iecServer, const TDevi
     }
     tx->End();
 
-    Driver->On<TControlValueEvent>([this](const WBMQTT::TControlValueEvent& event){ OnValueChanged(event); });
+    Driver->On<TControlValueEvent>([this](const WBMQTT::TControlValueEvent& event) { OnValueChanged(event); });
     iecServer->SetHandler(this);
 }
 
@@ -103,8 +103,7 @@ void TGateway::OnValueChanged(const WBMQTT::TControlValueEvent& event)
 
     bool hasObjs = false;
     IEC104::TInformationObjects objs;
-    while (itControl.first != itControl.second)
-    {
+    while (itControl.first != itControl.second) {
         hasObjs |= Append(objs, event.Control, event.RawValue, itControl.first->second);
         ++itControl.first;
     }
@@ -132,7 +131,7 @@ IEC104::TInformationObjects TGateway::GetInformationObjectsValues() const noexce
     } catch (const std::exception& e) {
         LOG(Warn) << "TGateway::GetInformationObjectsValues() error: " << e.what();
     }
-    LOG(Debug) << "TGateway::GetInformationObjectsValues()\n" 
+    LOG(Debug) << "TGateway::GetInformationObjectsValues()\n"
                << "\n\tSinglePoint:" << objs.SinglePoint.size()
                << "\n\tMeasuredValueShort:" << objs.MeasuredValueShort.size()
                << "\n\tMeasuredValueScaled:" << objs.MeasuredValueScaled.size();
@@ -155,7 +154,8 @@ bool TGateway::SetParameter(uint32_t ioa, const std::string& value) noexcept
         }
         auto pControl = pDevice->GetControl(it->second.Control);
         if (!pControl) {
-            throw std::runtime_error("'" + it->second.Device + "' doesn't contain control '" + it->second.Control + "'");
+            throw std::runtime_error("'" + it->second.Device + "' doesn't contain control '" + it->second.Control +
+                                     "'");
         }
         pControl->SetRawValue(tx, value).Sync();
         LOG(Info) << "Set " << GetFullName(pControl) << " = '" << value << "'";
