@@ -1,1 +1,3 @@
-buildDebSbuild defaultTargets: 'wb6'
+buildDebSbuild defaultTargets: 'bullseye-armhf',
+               defaultStyleCheckDirs: 'src test'
+

@@ -3,14 +3,14 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include <wblib/testing/testlog.h>
+#include <wblib/json_utils.h>
 #include <wblib/testing/fake_driver.h>
 #include <wblib/testing/fake_mqtt.h>
-#include <wblib/json_utils.h>
+#include <wblib/testing/testlog.h>
 
 using namespace WBMQTT;
 
-class TLoadConfigTest : public testing::Test
+class TLoadConfigTest: public testing::Test
 {
 protected:
     std::string TestRootDir;
@@ -33,7 +33,8 @@ TEST_F(TLoadConfigTest, bad_config)
 {
     // missing fields
     for (size_t i = 1; i <= 7; ++i) {
-        ASSERT_THROW(LoadConfig(TestRootDir + "/bad/bad" + std::to_string(i) + ".conf", SchemaFile), std::runtime_error) << i;
+        ASSERT_THROW(LoadConfig(TestRootDir + "/bad/bad" + std::to_string(i) + ".conf", SchemaFile), std::runtime_error)
+            << i;
     }
 
     // bad topic name
@@ -70,37 +71,20 @@ TEST_F(TUpdateConfigTest, update)
     auto mqttBroker = Testing::NewFakeMqttBroker(*this);
     auto mqttClient = mqttBroker->MakeClient("test");
     auto backend = NewDriverBackend(mqttClient);
-    auto driver = NewDriver(TDriverArgs{}
-        .SetId("test")
-        .SetBackend(backend)
-    );
+    auto driver = NewDriver(TDriverArgs{}.SetId("test").SetBackend(backend));
 
     driver->StartLoop();
 
     auto tx = driver->BeginTx();
-    auto device = tx->CreateDevice(TLocalDeviceArgs{}
-        .SetId("test")
-    ).GetValue();
+    auto device = tx->CreateDevice(TLocalDeviceArgs{}.SetId("test")).GetValue();
 
-    device->CreateControl(tx, TControlArgs{}
-        .SetId("test2")
-        .SetType("value")
-    ).GetValue();
+    device->CreateControl(tx, TControlArgs{}.SetId("test2").SetType("value")).GetValue();
 
-    device->CreateControl(tx, TControlArgs{}
-        .SetId("test4")
-        .SetType("rgb")
-    ).GetValue();
+    device->CreateControl(tx, TControlArgs{}.SetId("test4").SetType("rgb")).GetValue();
 
-    auto device2 = tx->CreateDevice(TLocalDeviceArgs{}
-        .SetId("test2")
-    ).GetValue();
+    auto device2 = tx->CreateDevice(TLocalDeviceArgs{}.SetId("test2")).GetValue();
 
-    device2->CreateControl(tx, TControlArgs{}
-        .SetId("test2")
-        .SetType("value")
-        .SetReadonly(true)
-    ).GetValue();
+    device2->CreateControl(tx, TControlArgs{}.SetId("test2").SetType("value").SetReadonly(true)).GetValue();
 
     tx->End();
 

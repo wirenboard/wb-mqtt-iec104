@@ -1,3 +1,9 @@
+wb-mqtt-iec104 (1.0.3) stable; urgency=medium
+
+  * Format source code. No functional changes
+
+ -- Petr Krasnoshchekov <petr.krasnoshchekov@wirenboard.com>  Wed, 22 Mar 2023 10:11:53 +0500
+
 wb-mqtt-iec104 (1.0.2) stable; urgency=medium
 
   * Set mqtt client id

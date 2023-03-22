@@ -5,7 +5,6 @@
 #ifndef CONFIG_LIB60870_CONFIG_H_
 #define CONFIG_LIB60870_CONFIG_H_
 
-
 /* print debugging information with printf if set to 1 */
 #define CONFIG_DEBUG_OUTPUT 1
 
@@ -76,6 +75,5 @@
 
 /* number of not missing keepalive responses until socket is considered dead */
 #define CONFIG_TCP_KEEPALIVE_CNT 2
-
 
 #endif /* CONFIG_LIB60870_CONFIG_H_ */
