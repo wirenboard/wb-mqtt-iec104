@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <utility>
@@ -20,12 +21,45 @@ namespace IEC104
         uint32_t CommonAddress;
     };
 
+    template<class T> struct TInformationObject
+    {
+        uint32_t Address;
+        T Value;
+
+        TInformationObject(uint32_t address, T value): Address(address), Value(value)
+        {}
+    };
+
+    template<class T> struct TInformationObjectWithTimestamp: public TInformationObject<T>
+    {
+        //! UTC timestamp
+        std::chrono::system_clock::time_point Timestamp;
+
+        TInformationObjectWithTimestamp(uint32_t address,
+                                        const std::chrono::system_clock::time_point& timestamp,
+                                        T value)
+            : TInformationObject<T>(address, value),
+              Timestamp(timestamp)
+        {}
+    };
+
+    typedef TInformationObject<bool> TSinglePointInformationObject;
+    typedef TInformationObject<float> TMeasuredValueShortInformationObject;
+    typedef TInformationObject<int> TMeasuredValueScaledInformationObject;
+
+    typedef TInformationObjectWithTimestamp<bool> TSinglePointInformationObjectWithTimestamp;
+    typedef TInformationObjectWithTimestamp<float> TMeasuredValueShortInformationObjectWithTimestamp;
+    typedef TInformationObjectWithTimestamp<int> TMeasuredValueScaledInformationObjectWithTimestamp;
+
     //! IEC information objects. Vectors of pairs "information object address"-"value"
     struct TInformationObjects
     {
-        std::vector<std::pair<uint32_t, bool>> SinglePoint;
-        std::vector<std::pair<uint32_t, float>> MeasuredValueShort;
-        std::vector<std::pair<uint32_t, int>> MeasuredValueScaled;
+        std::vector<TSinglePointInformationObject> SinglePoint;
+        std::vector<TMeasuredValueShortInformationObject> MeasuredValueShort;
+        std::vector<TMeasuredValueScaledInformationObject> MeasuredValueScaled;
+        std::vector<TSinglePointInformationObjectWithTimestamp> SinglePointWithTimestamp;
+        std::vector<TMeasuredValueShortInformationObjectWithTimestamp> MeasuredValueShortWithTimestamp;
+        std::vector<TMeasuredValueScaledInformationObjectWithTimestamp> MeasuredValueScaledWithTimestamp;
     };
 
     //! Interface of external event handler
@@ -42,10 +76,10 @@ namespace IEC104
          *        Must be threadsafe.
          *
          * @param ioa information object address of command
-         * @param value value recieved from command
+         * @param value value received from command
          * @return true - received value successfully processed by handler. Positive acknowledgement to command will be
          * send
-         * @return false - an error occured during processing. Negative response to command will be send
+         * @return false - an error occurred during processing. Negative response to command will be send
          */
         virtual bool SetParameter(uint32_t ioa, const std::string& value) noexcept = 0;
     };

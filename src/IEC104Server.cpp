@@ -11,6 +11,8 @@
 
 #include "log.h"
 
+using namespace std::chrono;
+
 #define LOG(logger) ::logger.Log() << "[IEC] "
 
 namespace
@@ -85,6 +87,48 @@ namespace
         return asdu;
     }
 
+    InformationObject CreateInformationObject(const IEC104::TSinglePointInformationObject& obj)
+    {
+        return (InformationObject)SinglePointInformation_create(NULL, obj.Address, obj.Value, IEC60870_QUALITY_GOOD);
+    }
+
+    InformationObject CreateInformationObject(const IEC104::TSinglePointInformationObjectWithTimestamp& obj)
+    {
+        sCP56Time2a timestamp;
+        CP56Time2a_createFromMsTimestamp(&timestamp,
+                                         duration_cast<milliseconds>(obj.Timestamp.time_since_epoch()).count());
+        return (InformationObject)
+            SinglePointWithCP56Time2a_create(NULL, obj.Address, obj.Value, IEC60870_QUALITY_GOOD, &timestamp);
+    }
+
+    InformationObject CreateInformationObject(const IEC104::TMeasuredValueScaledInformationObject& obj)
+    {
+        return (InformationObject)MeasuredValueScaled_create(NULL, obj.Address, obj.Value, IEC60870_QUALITY_GOOD);
+    }
+
+    InformationObject CreateInformationObject(const IEC104::TMeasuredValueScaledInformationObjectWithTimestamp& obj)
+    {
+        sCP56Time2a timestamp;
+        CP56Time2a_createFromMsTimestamp(&timestamp,
+                                         duration_cast<milliseconds>(obj.Timestamp.time_since_epoch()).count());
+        return (InformationObject)
+            MeasuredValueScaledWithCP56Time2a_create(NULL, obj.Address, obj.Value, IEC60870_QUALITY_GOOD, &timestamp);
+    }
+
+    InformationObject CreateInformationObject(const IEC104::TMeasuredValueShortInformationObject& obj)
+    {
+        return (InformationObject)MeasuredValueShort_create(NULL, obj.Address, obj.Value, IEC60870_QUALITY_GOOD);
+    }
+
+    InformationObject CreateInformationObject(const IEC104::TMeasuredValueShortInformationObjectWithTimestamp& obj)
+    {
+        sCP56Time2a timestamp;
+        CP56Time2a_createFromMsTimestamp(&timestamp,
+                                         duration_cast<milliseconds>(obj.Timestamp.time_since_epoch()).count());
+        return (InformationObject)
+            MeasuredValueShortWithCP56Time2a_create(NULL, obj.Address, obj.Value, IEC60870_QUALITY_GOOD, &timestamp);
+    }
+
     void Send(CS101_AppLayerParameters appLayerParameters,
               int commonAddress,
               CS101_CauseOfTransmission cot,
@@ -94,33 +138,22 @@ namespace
         CS101_ASDU asdu = CS101_ASDU_create(appLayerParameters, false, cot, 0, commonAddress, false, false);
 
         for (const auto& val: objs.SinglePoint) {
-            asdu = Append(
-                (InformationObject)SinglePointInformation_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
-                asdu,
-                appLayerParameters,
-                commonAddress,
-                cot,
-                sendFn);
+            asdu = Append(CreateInformationObject(val), asdu, appLayerParameters, commonAddress, cot, sendFn);
         }
-
         for (const auto& val: objs.MeasuredValueShort) {
-            asdu =
-                Append((InformationObject)MeasuredValueShort_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
-                       asdu,
-                       appLayerParameters,
-                       commonAddress,
-                       cot,
-                       sendFn);
+            asdu = Append(CreateInformationObject(val), asdu, appLayerParameters, commonAddress, cot, sendFn);
         }
-
         for (const auto& val: objs.MeasuredValueScaled) {
-            asdu = Append(
-                (InformationObject)MeasuredValueScaled_create(NULL, val.first, val.second, IEC60870_QUALITY_GOOD),
-                asdu,
-                appLayerParameters,
-                commonAddress,
-                cot,
-                sendFn);
+            asdu = Append(CreateInformationObject(val), asdu, appLayerParameters, commonAddress, cot, sendFn);
+        }
+        for (const auto& val: objs.SinglePointWithTimestamp) {
+            asdu = Append(CreateInformationObject(val), asdu, appLayerParameters, commonAddress, cot, sendFn);
+        }
+        for (const auto& val: objs.MeasuredValueShortWithTimestamp) {
+            asdu = Append(CreateInformationObject(val), asdu, appLayerParameters, commonAddress, cot, sendFn);
+        }
+        for (const auto& val: objs.MeasuredValueScaledWithTimestamp) {
+            asdu = Append(CreateInformationObject(val), asdu, appLayerParameters, commonAddress, cot, sendFn);
         }
 
         if (CS101_ASDU_getPayloadSize(asdu)) {
@@ -222,16 +255,19 @@ namespace
         }
         switch (asduType) {
             case C_SC_NA_1: // Single command
+            case C_SC_TA_1: // Single command with timestamp
                 HandleCommand(asdu, connection, Handler, [](InformationObject io) {
                     return (SingleCommand_getState((SingleCommand)io) ? "1" : "0");
                 });
                 return true;
             case C_SE_NB_1: // Measured value scaled command
+            case C_SE_TB_1: // Measured value scaled command with timestamp
                 HandleCommand(asdu, connection, Handler, [](InformationObject io) {
                     return std::to_string(MeasuredValueScaled_getValue((MeasuredValueScaled)io));
                 });
                 return true;
             case C_SE_NC_1: // Measured value short command
+            case C_SE_TC_1: // Measured value short command with timestamp
                 HandleCommand(asdu, connection, Handler, [](InformationObject io) {
                     return std::to_string(MeasuredValueShort_getValue((MeasuredValueShort)io));
                 });
