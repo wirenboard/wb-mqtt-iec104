@@ -33,12 +33,14 @@ namespace
                     }
                     throw std::runtime_error(v + " is not convertible to bool");
                 }
-                case MeasuredValueShort:
+                case MeasuredValueShort: {
                     objs.MeasuredValueShort.emplace_back(obj.Address, stof(v));
                     return true;
-                case MeasuredValueScaled:
+                }
+                case MeasuredValueScaled: {
                     objs.MeasuredValueScaled.emplace_back(obj.Address, stoi(v));
                     return true;
+                }
                 case SinglePointWithTimestamp: {
                     if (v == "0") {
                         objs.SinglePointWithTimestamp.emplace_back(obj.Address, now, false);
