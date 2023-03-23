@@ -150,7 +150,10 @@ IEC104::TInformationObjects TGateway::GetInformationObjectsValues() const noexce
     LOG(Debug) << "TGateway::GetInformationObjectsValues()\n"
                << "\n\tSinglePoint:" << objs.SinglePoint.size()
                << "\n\tMeasuredValueShort:" << objs.MeasuredValueShort.size()
-               << "\n\tMeasuredValueScaled:" << objs.MeasuredValueScaled.size();
+               << "\n\tMeasuredValueScaled:" << objs.MeasuredValueScaled.size()
+               << "\n\tSinglePointWithTimestamp:" << objs.SinglePointWithTimestamp.size()
+               << "\n\tMeasuredValueShortWithTimestamp:" << objs.MeasuredValueShortWithTimestamp.size()
+               << "\n\tMeasuredValueScaledWithTimestamp:" << objs.MeasuredValueScaledWithTimestamp.size();
     return objs;
 }
 
