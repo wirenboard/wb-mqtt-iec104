@@ -18,24 +18,48 @@ namespace
             return false;
         }
 
+        auto now = std::chrono::system_clock::now();
+
         try {
             switch (obj.Type) {
-                case SinglePoint:
+                case SinglePoint: {
                     if (v == "0") {
-                        objs.SinglePoint.emplace_back(std::make_pair(obj.Address, false));
+                        objs.SinglePoint.emplace_back(obj.Address, false);
                         return true;
                     }
                     if (v == "1") {
-                        objs.SinglePoint.emplace_back(std::make_pair(obj.Address, true));
+                        objs.SinglePoint.emplace_back(obj.Address, true);
                         return true;
                     }
                     throw std::runtime_error(v + " is not convertible to bool");
-                case MeasuredValueShort:
-                    objs.MeasuredValueShort.emplace_back(std::make_pair(obj.Address, stof(v)));
+                }
+                case MeasuredValueShort: {
+                    objs.MeasuredValueShort.emplace_back(obj.Address, stof(v));
                     return true;
-                case MeasuredValueScaled:
-                    objs.MeasuredValueScaled.emplace_back(std::make_pair(obj.Address, stoi(v)));
+                }
+                case MeasuredValueScaled: {
+                    objs.MeasuredValueScaled.emplace_back(obj.Address, stoi(v));
                     return true;
+                }
+                case SinglePointWithTimestamp: {
+                    if (v == "0") {
+                        objs.SinglePointWithTimestamp.emplace_back(obj.Address, now, false);
+                        return true;
+                    }
+                    if (v == "1") {
+                        objs.SinglePointWithTimestamp.emplace_back(obj.Address, now, true);
+                        return true;
+                    }
+                    throw std::runtime_error(v + " is not convertible to bool");
+                }
+                case MeasuredValueShortWithTimestamp: {
+                    objs.MeasuredValueShortWithTimestamp.emplace_back(obj.Address, now, stof(v));
+                    return true;
+                }
+                case MeasuredValueScaledWithTimestamp: {
+                    objs.MeasuredValueScaledWithTimestamp.emplace_back(obj.Address, now, stoi(v));
+                    return true;
+                }
             }
         } catch (const std::exception& e) {
             LOG(Warn) << "'" << control->GetDevice()->GetId() << "'/'" << control->GetId() << "' = '" << v
@@ -63,19 +87,11 @@ TGateway::TGateway(PDeviceDriver driver, IEC104::IServer* iecServer, const TDevi
     Driver->SetFilter(GetDeviceListFilter(deviceIds));
     Driver->WaitForReady();
 
-    auto tx = driver->BeginTx();
     for (const auto& device: devices) {
-        auto pDevice = tx->GetDevice(device.first);
-        if (pDevice) {
-            for (const auto& control: device.second) {
-                auto pControl = pDevice->GetControl(control.first);
-                if (pControl) {
-                    IoaToControls[control.second.Address] = {device.first, control.first};
-                }
-            }
+        for (const auto& control: device.second) {
+            IoaToControls[control.second.Address] = {device.first, control.first};
         }
     }
-    tx->End();
 
     Driver->On<TControlValueEvent>([this](const WBMQTT::TControlValueEvent& event) { OnValueChanged(event); });
     iecServer->SetHandler(this);
@@ -134,7 +150,10 @@ IEC104::TInformationObjects TGateway::GetInformationObjectsValues() const noexce
     LOG(Debug) << "TGateway::GetInformationObjectsValues()\n"
                << "\n\tSinglePoint:" << objs.SinglePoint.size()
                << "\n\tMeasuredValueShort:" << objs.MeasuredValueShort.size()
-               << "\n\tMeasuredValueScaled:" << objs.MeasuredValueScaled.size();
+               << "\n\tMeasuredValueScaled:" << objs.MeasuredValueScaled.size()
+               << "\n\tSinglePointWithTimestamp:" << objs.SinglePointWithTimestamp.size()
+               << "\n\tMeasuredValueShortWithTimestamp:" << objs.MeasuredValueShortWithTimestamp.size()
+               << "\n\tMeasuredValueScaledWithTimestamp:" << objs.MeasuredValueScaledWithTimestamp.size();
     return objs;
 }
 
@@ -150,7 +169,7 @@ bool TGateway::SetParameter(uint32_t ioa, const std::string& value) noexcept
         auto tx = Driver->BeginTx();
         auto pDevice = tx->GetDevice(it->second.Device);
         if (!pDevice) {
-            throw std::runtime_error("MQTT brocker doesn't have '" + it->second.Device + "' device");
+            throw std::runtime_error("MQTT broker doesn't have '" + it->second.Device + "' device");
         }
         auto pControl = pDevice->GetControl(it->second.Control);
         if (!pControl) {

@@ -1,7 +1,6 @@
 {
   "type": "object",
-  "title": "MQTT to IEC 60870-5-104 gateway configuration",
-  "description": "Configure topics to fields mapping and daemon configuration",
+  "title": "service_title",
   "configFile": {
     "path": "/etc/wb-mqtt-iec104.conf",
     "service": "wb-mqtt-iec104"
@@ -14,7 +13,7 @@
       "properties": {
         "enabled": {
           "type": "boolean",
-          "title": "Enabled",
+          "title": "Send",
           "propertyOrder": 1,
           "_format": "checkbox"
         },
@@ -40,22 +39,27 @@
           "enum": [
             "single",
             "short",
-            "scaled"
+            "scaled",
+            "single_time",
+            "short_time",
+            "scaled_time"
           ],
           "title": "Information object type",
           "default": "measured value short",
           "propertyOrder": 5,
           "options": {
             "enum_titles": [
-              "single point",
-              "measured value short",
-              "measured value scaled"
+              "single point (M_SP_NA_1)",
+              "measured value short (M_ME_NC_1)",
+              "measured value scaled (M_ME_NB_1)",
+              "single point with timestamp (M_SP_TB_1)",
+              "measured value short with timestamp (M_ME_TF_1)",
+              "measured value scaled with timestamp (M_ME_TE_1)"
             ]
           }
         }
       },
-      "required": ["topic", "address", "iec_type"]
-    },
+      "required": ["topic", "address", "iec_type"]    },
     "group": {
       "type": "object",
       "title": "Group",
@@ -63,14 +67,14 @@
       "properties": {
         "enabled": {
           "type": "boolean",
-          "title": "Enabled",
-          "propertyOrder": 1,
+          "title": "Enable group",
+          "propertyOrder": 2,
           "_format": "checkbox"
         },
         "name": {
           "type": "string",
           "title": "Group name",
-          "propertyOrder": 2
+          "propertyOrder": 1
         },
         "controls": {
           "type": "array",
@@ -82,7 +86,13 @@
           },
           "options": {
             "disable_array_reorder": true,
-            "disable_collapse": true
+            "disable_array_delete_last_row": true,
+            "disable_array_delete_all_rows": true,
+            "disable_collapse": true,
+            "compact": true,
+            "wb": {
+              "disable_panel": true
+            }
           }
         }
       },
@@ -90,7 +100,10 @@
       "options" : {
         "disable_edit_json" : true,
         "disable_properties": true,
-        "disable_collapse": true
+        "disable_collapse": true,
+        "wb": {
+          "disable_title": true
+        }
       }
     }
   },
@@ -128,14 +141,14 @@
         },
         "auth": {
           "type": "boolean",
-          "title": "Enable username+password authentification",
+          "title": "Use username+password authentication",
           "default": false,
           "_format": "checkbox",
           "propertyOrder": 4
         },
         "username": {
           "type": "string",
-          "title": "Login",
+          "title": "Username",
           "propertyOrder": 5
         },
         "password": {
@@ -154,18 +167,17 @@
     },
     "iec104": {
       "type": "object",
-      "title": "IEC 60870-5-104 binding",
+      "title": "IEC 60870-5-104 server",
       "properties": {
         "host": {
           "type": "string",
           "title": "Bind address",
-          "description": "Local IP address to bind gateway to. If empty, gateway will listen to all local IP addresses",
+          "description": "host_desc",
           "propertyOrder": 1
         },
         "port": {
           "type": "integer",
           "title": "TCP port",
-          "description": "TCP port number to bing gateway to",
           "default": 2404,
           "minimum": 1,
           "maximum": 65535,
@@ -197,6 +209,8 @@
       },
       "options": {
         "disable_array_reorder": true,
+        "disable_array_delete_last_row": true,
+        "disable_array_delete_all_rows": true,
         "disable_collapse": true
       },
       "_format": "tabs"
@@ -205,6 +219,47 @@
   "required": ["iec104", "groups"],
   "options" : {
     "disable_properties": true,
-    "disable_collapse": true
+    "disable_collapse": true,
+    "disable_edit_json": true
+  },
+  "translations": {
+    "en": {
+      "service_title": "MQTT to IEC 60870-5-104 gateway",
+      "host_desc": "Local IP address to bind gateway to. If empty, gateway will listen to all local IP addresses"
+    },
+    "ru": {
+      "service_title": "Шлюз MQTT - МЭК 60870-5-104",
+      "Control": "Параметр",
+      "Send": "Отправлять",
+      "MQTT device and control (from topic name)": "Устройство и контрол MQTT (из имени топика)",
+      "For information only": "Для справки",
+      "Unique IEC information object address": "Уникальный адрес информационного объекта МЭК",
+      "single point (M_SP_NA_1)": "одноэлементная информация (M_SP_NA_1)",
+      "measured value short (M_ME_NC_1)": "короткий формат с плавающей запятой (M_ME_NC_1)", 
+      "measured value scaled (M_ME_NB_1)": "масштабированное значение (M_ME_NB_1)",
+      "single point with timestamp (M_SP_TB_1)": "одноэлементная информация с меткой времени (M_SP_TB_1)",
+      "measured value short with timestamp (M_ME_TF_1)": "короткий формат с плавающей запятой с меткой времени (M_ME_TF_1)",
+      "measured value scaled with timestamp (M_ME_TE_1)": "масштабированное значение с меткой времени (M_ME_TE_1)",
+      "Group": "Группа",
+      "Enable group": "Разрешить отправку параметров из группы",
+      "Group name": "Название группы",
+      "Controls": "Параметры",
+      "Enable debug logging": "Включить запись отладочных сообщений",
+      "MQTT connection": "Соединение с MQTT брокером",
+      "Broker address": "Адрес брокера",
+      "Port": "Порт",
+      "Keep-alive interval": "Интервал отправки keep-alive сообщений",
+      "Use username+password authentication": "Использовать аутентификацию по имени пользователя и паролю",
+      "Username": "Имя пользователя",
+      "Password": "Пароль",
+      "IEC 60870-5-104 server": "Сервер МЭК 60870-5-104",
+      "Bind address": "Адрес привязки",
+      "host_desc": "Локальный IP адрес, на котором сервер будет принимать соединения. Если не указан, сервер будет принимать соединения на всех доступных локальных адресах",
+      "TCP port": "TCP порт",
+      "Common address": "Адрес контролируемой станции",
+      "Groups of controls": "Группа параметров",
+      "Information object type": "Тип информационного объекта"
+    }
   }
+
 }

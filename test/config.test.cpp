@@ -45,12 +45,22 @@ TEST_F(TLoadConfigTest, bad_config)
 
 TEST_F(TLoadConfigTest, good)
 {
-    auto c = LoadConfig(TestRootDir + "/bad/non_unique_address.conf", SchemaFile);
+    auto c = LoadConfig(TestRootDir + "/good/wb-mqtt-iec104.conf", SchemaFile);
     ASSERT_EQ(c.Devices.size(), 1);
-    ASSERT_EQ(c.Devices["test"].size(), 1);
-    ASSERT_STREQ(c.Devices["test"].begin()->first.c_str(), "test2");
-    ASSERT_EQ(c.Devices["test"].begin()->second.Address, 2);
-    ASSERT_EQ(c.Devices["test"].begin()->second.Type, MeasuredValueShort);
+    ASSERT_EQ(c.Devices["test"].size(), 6);
+    const TIecInformationObjectType types[] = {SinglePoint,
+                                               MeasuredValueShort,
+                                               MeasuredValueScaled,
+                                               SinglePointWithTimestamp,
+                                               MeasuredValueShortWithTimestamp,
+                                               MeasuredValueScaledWithTimestamp};
+    size_t index = 0;
+    for (const auto control: c.Devices["test"]) {
+        ASSERT_EQ(control.first, "test" + std::to_string(index + 1)) << index;
+        ASSERT_EQ(control.second.Address, index + 1) << index;
+        ASSERT_EQ(control.second.Type, types[index]) << index;
+        ++index;
+    }
 }
 
 class TUpdateConfigTest: public Testing::TLoggedFixture

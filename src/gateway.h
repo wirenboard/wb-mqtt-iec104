@@ -5,9 +5,12 @@
 
 enum TIecInformationObjectType
 {
-    SinglePoint,        //! Single point
-    MeasuredValueShort, //! Measured value short (float)
-    MeasuredValueScaled //! Measured value scaled (16-bit signed integer)
+    SinglePoint,                     //! Single point
+    MeasuredValueShort,              //! Measured value short (float)
+    MeasuredValueScaled,             //! Measured value scaled (16-bit signed integer)
+    SinglePointWithTimestamp,        //! Single point with 56bit timestamp
+    MeasuredValueShortWithTimestamp, //! Measured value short (float) with 56bit timestamp
+    MeasuredValueScaledWithTimestamp //! Measured value scaled (16-bit signed integer) with 56bit timestamp
 };
 
 struct TIecInformationObject

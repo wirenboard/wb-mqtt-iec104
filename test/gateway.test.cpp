@@ -16,13 +16,22 @@ namespace
     void Dump(Testing::TLoggedFixture& fixture, const IEC104::TInformationObjects& obj)
     {
         for (auto v: obj.SinglePoint) {
-            fixture.Emit() << "SP: " << v.first << " = " << v.second;
+            fixture.Emit() << "SP: " << v.Address << " = " << v.Value;
         }
         for (auto v: obj.MeasuredValueShort) {
-            fixture.Emit() << "MShort: " << v.first << " = " << v.second;
+            fixture.Emit() << "MShort: " << v.Address << " = " << v.Value;
         }
         for (auto v: obj.MeasuredValueScaled) {
-            fixture.Emit() << "MScaled: " << v.first << " = " << v.second;
+            fixture.Emit() << "MScaled: " << v.Address << " = " << v.Value;
+        }
+        for (auto v: obj.SinglePointWithTimestamp) {
+            fixture.Emit() << "SP: " << v.Address << " = " << v.Value << ", with timestamp";
+        }
+        for (auto v: obj.MeasuredValueShortWithTimestamp) {
+            fixture.Emit() << "MShort: " << v.Address << " = " << v.Value << ", with timestamp";
+        }
+        for (auto v: obj.MeasuredValueScaledWithTimestamp) {
+            fixture.Emit() << "MScaled: " << v.Address << " = " << v.Value << ", with timestamp";
         }
     }
 }
@@ -37,6 +46,9 @@ protected:
     PControl Control1;
     PControl Control2;
     PControl Control3;
+    PControl Control4;
+    PControl Control5;
+    PControl Control6;
     PControl ControlNotInConfig;
 
     void SetUp()
@@ -63,6 +75,12 @@ protected:
             device->CreateControl(tx, TControlArgs{}.SetId("test2").SetType("switch").SetValue(false)).GetValue();
 
         Control3 = device->CreateControl(tx, TControlArgs{}.SetId("test3").SetType("value").SetValue(123)).GetValue();
+
+        Control4 = device->CreateControl(tx, TControlArgs{}.SetId("test4").SetType("value").SetValue(3.21)).GetValue();
+
+        Control5 = device->CreateControl(tx, TControlArgs{}.SetId("test5").SetType("switch").SetValue(true)).GetValue();
+
+        Control6 = device->CreateControl(tx, TControlArgs{}.SetId("test6").SetType("value").SetValue(321)).GetValue();
 
         ControlNotInConfig =
             device->CreateControl(tx, TControlArgs{}.SetId("ControlNotInConfig").SetType("value").SetValue(1.23))
@@ -101,6 +119,9 @@ TEST_F(TGatewayTest, SetParameter)
     ASSERT_TRUE(gw.SetParameter(1, "10.21"));
     ASSERT_TRUE(gw.SetParameter(2, "1"));
     ASSERT_TRUE(gw.SetParameter(3, "-1"));
+    ASSERT_TRUE(gw.SetParameter(4, "9.87"));
+    ASSERT_TRUE(gw.SetParameter(5, "0"));
+    ASSERT_TRUE(gw.SetParameter(6, "-15"));
 
     // Unknown ioa
     ASSERT_FALSE(gw.SetParameter(7, "7"));
@@ -122,5 +143,8 @@ TEST_F(TGatewayTest, OnValueChanged)
     Control1->SetValue(tx, 2.34).Sync();
     Control2->SetValue(tx, true).Sync();
     Control3->SetRawValue(tx, "200").Sync();
+    Control4->SetValue(tx, 5.67).Sync();
+    Control5->SetValue(tx, false).Sync();
+    Control6->SetRawValue(tx, "768").Sync();
     tx->End();
 }

@@ -25,11 +25,17 @@ namespace
     const std::string SINGLE_POINT_CONFIG_VALUE("single");
     const std::string MEASURED_VALUE_SHORT_CONFIG_VALUE("short");
     const std::string MEASURED_VALUE_SCALED_CONFIG_VALUE("scaled");
+    const std::string SINGLE_POINT_WITH_TIMESTAMP_CONFIG_VALUE("single_time");
+    const std::string MEASURED_VALUE_SHORT_WITH_TIMESTAMP_CONFIG_VALUE("short_time");
+    const std::string MEASURED_VALUE_SCALED_WITH_TIMESTAMP_CONFIG_VALUE("scaled_time");
 
     const std::unordered_map<std::string, TIecInformationObjectType> Types = {
         {SINGLE_POINT_CONFIG_VALUE, SinglePoint},
         {MEASURED_VALUE_SHORT_CONFIG_VALUE, MeasuredValueShort},
-        {MEASURED_VALUE_SCALED_CONFIG_VALUE, MeasuredValueScaled}};
+        {MEASURED_VALUE_SCALED_CONFIG_VALUE, MeasuredValueScaled},
+        {SINGLE_POINT_WITH_TIMESTAMP_CONFIG_VALUE, SinglePointWithTimestamp},
+        {MEASURED_VALUE_SHORT_WITH_TIMESTAMP_CONFIG_VALUE, MeasuredValueShortWithTimestamp},
+        {MEASURED_VALUE_SCALED_WITH_TIMESTAMP_CONFIG_VALUE, MeasuredValueScaledWithTimestamp}};
 
     TIecInformationObjectType GetIoType(const std::string& t)
     {
