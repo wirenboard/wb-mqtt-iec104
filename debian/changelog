@@ -1,3 +1,9 @@
+wb-mqtt-iec104 (1.1.1) stable; urgency=medium
+
+  * Add homepage to deb package info. No functional changes
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Tue, 25 Jul 2023 16:34:00 +0400
+
 wb-mqtt-iec104 (1.1.0) stable; urgency=medium
 
   * Add support for values with timestamp: M_SP_TB_1, M_ME_TF_1, M_ME_TE_1.
