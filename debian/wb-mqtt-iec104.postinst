@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 CONFFILE=/etc/wb-mqtt-iec104.conf
 

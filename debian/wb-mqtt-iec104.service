@@ -1,6 +1,6 @@
 [Unit]
 Description=Wiren Board MQTT to IEC 60870-5-104 gateway
-After=mosquitto.target
+After=mosquitto.service
 
 [Service]
 Type=simple
