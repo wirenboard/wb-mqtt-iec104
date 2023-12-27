@@ -1,3 +1,5 @@
+PREFIX = /usr
+
 ifneq ($(DEB_HOST_MULTIARCH),)
 	CROSS_COMPILE ?= $(DEB_HOST_MULTIARCH)-
 endif
@@ -76,10 +78,10 @@ CXXFLAGS += -DWBMQTT_COMMIT="$(GIT_REVISION)" -DWBMQTT_VERSION="$(DEB_VERSION)"
 all: $(TARGET)
 
 $(TARGET): $(OBJS) $(COMMON_OBJS)
-	${CXX} -o $@ $^ $(LDFLAGS) 
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
-	${CC} -c $< -o $@ ${CFLAGS}
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 src/%.o: src/%.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $^
@@ -108,10 +110,9 @@ clean:
 	rm -rf $(SRC_DIR)/*.gcda $(SRC_DIR)/*.gcno $(TEST_DIR)/*.gcda $(TEST_DIR)/*.gcno
 
 install:
-	install -D -m 0644 wb-mqtt-iec104.schema.json $(DESTDIR)/usr/share/wb-mqtt-confed/schemas/wb-mqtt-iec104.schema.json
-	install -D -m 0644 wb-mqtt-iec104.sample.conf $(DESTDIR)/usr/share/wb-mqtt-iec104/wb-mqtt-iec104.sample.conf
-	install -D -m 0755 $(TARGET) $(DESTDIR)/usr/bin/$(TARGET)
-	install -D -m 0644  wb-mqtt-iec104.wbconfigs $(DESTDIR)/etc/wb-configs.d/17wb-mqtt-iec104
-
+	install -Dm0644 wb-mqtt-iec104.schema.json -t $(DESTDIR)$(PREFIX)/share/wb-mqtt-confed/schemas
+	install -Dm0644 wb-mqtt-iec104.sample.conf -t $(DESTDIR)$(PREFIX)/share/wb-mqtt-iec104
+	install -Dm0755 $(TARGET) -t $(DESTDIR)$(PREFIX)/bin
+	install -Dm0644 wb-mqtt-iec104.wbconfigs $(DESTDIR)/etc/wb-configs.d/17wb-mqtt-iec104
 
 .PHONY: all test clean

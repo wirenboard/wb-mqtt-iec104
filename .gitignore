@@ -12,7 +12,12 @@ test/test-app
 *.gcda
 *.gcno
 wb-mqtt-iec104
+compile_commands.json
 
 # Visual Studio Code
 .vscode
 .clang-format
+
+### direnv ###
+.direnv
+.envrc

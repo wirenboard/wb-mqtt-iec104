@@ -55,7 +55,7 @@ TEST_F(TLoadConfigTest, good)
                                                MeasuredValueShortWithTimestamp,
                                                MeasuredValueScaledWithTimestamp};
     size_t index = 0;
-    for (const auto control: c.Devices["test"]) {
+    for (const auto& control: c.Devices["test"]) {
         ASSERT_EQ(control.first, "test" + std::to_string(index + 1)) << index;
         ASSERT_EQ(control.second.Address, index + 1) << index;
         ASSERT_EQ(control.second.Type, types[index]) << index;
