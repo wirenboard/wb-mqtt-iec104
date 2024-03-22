@@ -207,7 +207,7 @@ namespace
 
     TServerImpl::~TServerImpl()
     {
-        Stop();
+        TServerImpl::Stop();
         CS104_Slave_destroy(Slave);
     }
 
