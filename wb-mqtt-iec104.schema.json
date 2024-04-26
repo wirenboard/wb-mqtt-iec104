@@ -20,7 +20,13 @@
         "topic": {
           "type": "string",
           "title": "MQTT device and control (from topic name)",
-          "propertyOrder": 2
+          "propertyOrder": 2,
+          "options": {
+              "wb": {
+                  "data": "devices"
+              }
+          },
+          "format": "wb-autocomplete"
         },
         "info": {
           "type": "string",
