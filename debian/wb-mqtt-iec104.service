@@ -10,5 +10,8 @@ User=root
 ExecStart=/usr/bin/wb-mqtt-iec104
 ExecStartPre=/usr/bin/wb-mqtt-iec104 -g /etc/wb-mqtt-iec104.conf
 
+# Service not restarting after return EXIT_NOTCONFIGURED
+RestartPreventExitStatus=6
+
 [Install]
 WantedBy=multi-user.target

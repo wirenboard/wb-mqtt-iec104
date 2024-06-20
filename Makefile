@@ -16,7 +16,7 @@ OBJS = main.o
 SRC_DIR = src
 LIB60870_DIR = thirdparty/lib60870/lib60870-C/src
 
-COMMON_OBJS = log.o config_parser.o gateway.o IEC104Server.o
+COMMON_OBJS = log.o config_parser.o gateway.o IEC104Server.o iec104_exception.o
 
 DEBUG_CXXFLAGS = -O0 -fprofile-arcs -ftest-coverage
 DEBUG_LDFLAGS = -lgcov
