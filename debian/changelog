@@ -1,3 +1,9 @@
+wb-mqtt-iec104 (1.1.7) stable; urgency=medium
+
+  * Fail (and not restart) if no enabled groups found
+
+ -- Vladimir Romanov <v.romanov@wirenboard.com>  Thu, 20 Jun 2024 18:02:45 +0300
+
 wb-mqtt-iec104 (1.1.6) stable; urgency=medium
 
   * Add json editor autocomplete for devices

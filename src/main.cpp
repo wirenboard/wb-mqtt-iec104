@@ -4,6 +4,7 @@
 #include <wblib/wbmqtt.h>
 
 #include "config_parser.h"
+#include "iec104_exception.h"
 #include "log.h"
 
 #define LOG(logger) ::logger.Log() << "[main] "
@@ -23,9 +24,10 @@ const auto DRIVER_STOP_TIMEOUT_S = chrono::seconds(10);
 //! Maximun time to start application. Exceded timeout will case application termination.
 const auto DRIVER_INIT_TIMEOUT_S = chrono::seconds(60);
 
+const auto EXIT_NOTCONFIGURED = 6; // Is not configured properly; do not auto-restart by systemd
+
 namespace
 {
-    constexpr auto EXIT_NOTCONFIGURED = 6; // Is not configured properly; do not auto-restart by systemd
 
     void PrintStartupInfo()
     {
