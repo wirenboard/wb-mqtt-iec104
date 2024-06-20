@@ -11,6 +11,7 @@
 #include <wblib/json_utils.h>
 #include <wblib/wbmqtt.h>
 
+#include "iec104_exception.h"
 #include "log.h"
 #include "murmurhash.h"
 
@@ -88,12 +89,17 @@ namespace
     TDeviceConfig LoadGroups(const Json::Value& config, std::set<uint32_t>& UsedAddresses)
     {
         TDeviceConfig res;
+        bool anyEnabled = false;
         for (const auto& group: config["groups"]) {
             bool enabled = false;
             Get(group, "enabled", enabled);
             if (enabled) {
+                anyEnabled = true;
                 LoadControls(res, group["controls"], UsedAddresses);
             }
+        }
+        if (!anyEnabled) {
+            throw TConfigException("No enabled groups found!");
         }
         return res;
     }
