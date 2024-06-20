@@ -93,8 +93,8 @@ namespace
         for (const auto& group: config["groups"]) {
             bool enabled = false;
             Get(group, "enabled", enabled);
-            anyEnabled |= enabled;
             if (enabled) {
+                anyEnabled = true;
                 LoadControls(res, group["controls"], UsedAddresses);
             }
         }
