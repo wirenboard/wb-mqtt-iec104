@@ -25,6 +25,8 @@ const auto DRIVER_INIT_TIMEOUT_S = chrono::seconds(60);
 
 namespace
 {
+    constexpr auto EXIT_NOTCONFIGURED = 6; // Is not configured properly; do not auto-restart by systemd
+
     void PrintStartupInfo()
     {
         cout << APP_NAME << " " << XSTR(WBMQTT_VERSION) << " git " << XSTR(WBMQTT_COMMIT) << " build on " << __DATE__
@@ -152,6 +154,9 @@ int main(int argc, char* argv[])
         initialized.Complete();
         SignalHandling::Wait();
 
+    } catch (const TConfigException& e) {
+        LOG(Error) << "FATAL: " << e.what();
+        return EXIT_NOTCONFIGURED;
     } catch (const exception& e) {
         LOG(Error) << "FATAL: " << e.what();
         return 1;
