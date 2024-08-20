@@ -24,7 +24,7 @@ const auto DRIVER_STOP_TIMEOUT_S = chrono::seconds(10);
 //! Maximun time to start application. Exceded timeout will case application termination.
 const auto DRIVER_INIT_TIMEOUT_S = chrono::seconds(60);
 
-const auto EXIT_NOTCONFIGURED = 6; // Is not configured properly; do not auto-restart by systemd
+const auto EXIT_NOTRUNNING = 7; // Nothing for service to do; do not auto-restart by systemd, do not treat as failure
 
 namespace
 {
@@ -156,9 +156,9 @@ int main(int argc, char* argv[])
         initialized.Complete();
         SignalHandling::Wait();
 
-    } catch (const TConfigException& e) {
-        LOG(Error) << "FATAL: " << e.what();
-        return EXIT_NOTCONFIGURED;
+    } catch (const TEmptyConfigException& e) {
+        LOG(Error) << "All groups are disabled in config file, stopping service gracefully";
+        return EXIT_NOTRUNNING;
     } catch (const exception& e) {
         LOG(Error) << "FATAL: " << e.what();
         return 1;

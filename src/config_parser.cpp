@@ -99,7 +99,7 @@ namespace
             }
         }
         if (!anyEnabled) {
-            throw TConfigException("No enabled groups found!");
+            throw TEmptyConfigException();
         }
         return res;
     }
