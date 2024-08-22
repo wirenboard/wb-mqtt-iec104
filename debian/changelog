@@ -1,3 +1,9 @@
+wb-mqtt-iec104 (1.1.10) stable; urgency=medium
+
+  * Fix empty config handling after previous update
+
+ -- Nikita Maslov <nikita.maslov@wirenboard.com>  Thu, 22 Aug 2024 12:29:19 +0500
+
 wb-mqtt-iec104 (1.1.9) stable; urgency=medium
 
   * Do not restart service on config file error

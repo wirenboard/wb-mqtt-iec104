@@ -231,6 +231,8 @@ TConfig LoadConfig(const std::string& configFileName, const std::string& configS
         cfg.Devices = LoadGroups(config, usedAddresses);
         Get(config, "debug", cfg.Debug);
         return cfg;
+    } catch (const TEmptyConfigException& e) {
+        throw;
     } catch (const std::exception& e) {
         throw TConfigException(e.what());
     }
