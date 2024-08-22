@@ -218,18 +218,22 @@ namespace
 
 TConfig LoadConfig(const std::string& configFileName, const std::string& configSchemaFileName)
 {
-    auto config = JSON::Parse(configFileName);
-    JSON::Validate(config, JSON::Parse(configSchemaFileName));
-    std::set<uint32_t> usedAddresses;
+    try {
+        auto config = JSON::Parse(configFileName);
+        JSON::Validate(config, JSON::Parse(configSchemaFileName));
+        std::set<uint32_t> usedAddresses;
 
-    TConfig cfg;
-    cfg.Iec.BindIp = config["iec104"]["host"].asString();
-    cfg.Iec.BindPort = config["iec104"]["port"].asUInt();
-    cfg.Iec.CommonAddress = config["iec104"]["address"].asUInt();
-    cfg.Mqtt = LoadMqttConfig(config);
-    cfg.Devices = LoadGroups(config, usedAddresses);
-    Get(config, "debug", cfg.Debug);
-    return cfg;
+        TConfig cfg;
+        cfg.Iec.BindIp = config["iec104"]["host"].asString();
+        cfg.Iec.BindPort = config["iec104"]["port"].asUInt();
+        cfg.Iec.CommonAddress = config["iec104"]["address"].asUInt();
+        cfg.Mqtt = LoadMqttConfig(config);
+        cfg.Devices = LoadGroups(config, usedAddresses);
+        Get(config, "debug", cfg.Debug);
+        return cfg;
+    } catch (const std::exception& e) {
+        throw TConfigException(e.what());
+    }
 }
 
 void UpdateConfig(const string& configFileName, const string& configSchemaFileName)
