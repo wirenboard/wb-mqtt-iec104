@@ -68,12 +68,6 @@ LDFLAGS = -lwbmqtt1 -lpthread
 CXXFLAGS = -std=c++17 -Wall -Werror $(LIB60870_INCLUDES) -I$(SRC_DIR)
 CFLAGS = -Wall $(LIB60870_INCLUDES) -I$(SRC_DIR)
 
-DEBUG=
-NDEBUG?=y
-ifeq ($(NDEBUG),)
-DEBUG=y
-endif
-
 CXXFLAGS += $(if $(or $(DEBUG)),$(DEBUG_CXXFLAGS),$(NORMAL_CXXFLAGS))
 LDFLAGS += $(if $(or $(DEBUG)),$(DEBUG_LDFLAGS),$(NORMAL_LDFLAGS))
 
