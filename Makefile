@@ -31,8 +31,8 @@ TEST_LDFLAGS = -lgtest -lwbmqtt_test_utils
 
 VALGRIND_FLAGS = --error-exitcode=180 -q
 
-COV_REPORT ?= cov.html
-GCOVR_FLAGS := -s --html $(COV_REPORT)
+COV_REPORT ?= cov
+GCOVR_FLAGS := -s --html $(COV_REPORT).html -x $(COV_REPORT).xml
 ifneq ($(COV_FAIL_UNDER),)
 	GCOVR_FLAGS += --fail-under-line $(COV_FAIL_UNDER)
 endif
