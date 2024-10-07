@@ -18,16 +18,24 @@ LIB60870_DIR = thirdparty/lib60870/lib60870-C/src
 
 COMMON_OBJS = log.o config_parser.o gateway.o IEC104Server.o iec104_exception.o
 
-DEBUG_CXXFLAGS = -O0 -fprofile-arcs -ftest-coverage
-DEBUG_LDFLAGS = -lgcov
+DEBUG_CXXFLAGS = -O0 --coverage
+DEBUG_LDFLAGS = --coverage
 
-NORMAL_CXXFLAGS = -O2 -I$(SRC_DIR)
+NORMAL_CXXFLAGS = -O2
 NORMAL_LDFLAGS =
 
 TEST_DIR = test
 TEST_OBJS = main.o config.test.o gateway.test.o
 TEST_TARGET = test-app
 TEST_LDFLAGS = -lgtest -lwbmqtt_test_utils
+
+VALGRIND_FLAGS = --error-exitcode=180 -q
+
+COV_REPORT ?= cov
+GCOVR_FLAGS := -s --html $(COV_REPORT).html -x $(COV_REPORT).xml
+ifneq ($(COV_FAIL_UNDER),)
+	GCOVR_FLAGS += --fail-under-line $(COV_FAIL_UNDER)
+endif
 
 TEST_OBJS := $(patsubst %, $(TEST_DIR)/%, $(TEST_OBJS))
 COMMON_OBJS := $(patsubst %, $(SRC_DIR)/%, $(COMMON_OBJS))
@@ -57,14 +65,8 @@ COMMON_OBJS += $(LIB60870_OBJS)
 LIB60870_INCLUDES = -I$(LIB60870_DIR)/inc/api -I$(LIB60870_DIR)/inc/internal -I$(LIB60870_DIR)/common/inc -I$(LIB60870_DIR)/hal/inc
 
 LDFLAGS = -lwbmqtt1 -lpthread
-CXXFLAGS = -std=c++17 -Wall -Werror $(LIB60870_INCLUDES)
+CXXFLAGS = -std=c++17 -Wall -Werror $(LIB60870_INCLUDES) -I$(SRC_DIR)
 CFLAGS = -Wall $(LIB60870_INCLUDES) -I$(SRC_DIR)
-
-DEBUG=
-NDEBUG?=y
-ifeq ($(NDEBUG),)
-DEBUG=y
-endif
 
 CXXFLAGS += $(if $(or $(DEBUG)),$(DEBUG_CXXFLAGS),$(NORMAL_CXXFLAGS))
 LDFLAGS += $(if $(or $(DEBUG)),$(DEBUG_LDFLAGS),$(NORMAL_LDFLAGS))
@@ -91,7 +93,7 @@ test/%.o: test/%.cpp
 
 test: $(TEST_DIR)/$(TEST_TARGET)
 	if [ "$(shell arch)" != "armv7l" ] && [ "$(CROSS_COMPILE)" = "" ] || [ "$(CROSS_COMPILE)" = "x86_64-linux-gnu-" ]; then \
-		valgrind --error-exitcode=180 -q $(TEST_DIR)/$(TEST_TARGET) || \
+		valgrind $(VALGRIND_FLAGS) -q $(TEST_DIR)/$(TEST_TARGET) || \
 		if [ $$? = 180 ]; then \
 			echo "*** VALGRIND DETECTED ERRORS ***" 1>& 2; \
 			exit 1; \
@@ -99,6 +101,9 @@ test: $(TEST_DIR)/$(TEST_TARGET)
 	else \
 		$(TEST_DIR)/$(TEST_TARGET); \
 	fi
+ifneq ($(DEBUG),)
+	gcovr $(GCOVR_FLAGS) $(SRC_DIR) $(TEST_DIR)
+endif
 
 $(TEST_DIR)/$(TEST_TARGET): $(TEST_OBJS) $(COMMON_OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS) $(TEST_LDFLAGS) -fno-lto
