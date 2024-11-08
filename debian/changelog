@@ -8,7 +8,7 @@ wb-mqtt-iec104 (1.1.11) stable; urgency=medium
 
   * Add dependency from libwbmqtt1-5. No functional changes
 
- -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com> Tue, 17 Sep 2024 13:50:00 +0400
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Tue, 17 Sep 2024 13:50:00 +0400
 
 wb-mqtt-iec104 (1.1.10) stable; urgency=medium
 
