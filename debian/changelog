@@ -1,3 +1,9 @@
+wb-mqtt-iec104 (1.1.13) stable; urgency=medium
+
+  * Fix tests, no functional changes
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 29 Nov 2024 21:00:00 +0400
+
 wb-mqtt-iec104 (1.1.12) stable; urgency=medium
 
   * Add coverage report generation, no functional changes

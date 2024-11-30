@@ -1,6 +1,7 @@
 Subscribe: /devices/+/meta/driver (QoS 0)
 Publish: /devices/test/meta: '{"driver":"test"}' (QoS 1, retained)
 Publish: /devices/test/meta/driver: 'test' (QoS 1, retained)
+Publish: /devices/test/meta/error: '' (QoS 1, retained)
 Publish: /devices/test/controls/test1/meta: '{"order":1,"readonly":true,"type":"value"}' (QoS 1, retained)
 Publish: /devices/test/controls/test1/meta/error: '' (QoS 1, retained)
 Publish: /devices/test/controls/test1/meta/order: '1' (QoS 1, retained)
