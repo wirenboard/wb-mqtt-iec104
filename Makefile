@@ -92,14 +92,15 @@ test/%.o: test/%.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $^
 
 test: $(TEST_DIR)/$(TEST_TARGET)
+	rm -f $(TEST_DIR)/*.dat.out
 	if [ "$(shell arch)" != "armv7l" ] && [ "$(CROSS_COMPILE)" = "" ] || [ "$(CROSS_COMPILE)" = "x86_64-linux-gnu-" ]; then \
-		valgrind $(VALGRIND_FLAGS) -q $(TEST_DIR)/$(TEST_TARGET) || \
+		valgrind $(VALGRIND_FLAGS) $(TEST_DIR)/$(TEST_TARGET) $(TEST_ARGS) || \
 		if [ $$? = 180 ]; then \
 			echo "*** VALGRIND DETECTED ERRORS ***" 1>& 2; \
 			exit 1; \
-		else exit 1; fi; \
+		else $(TEST_DIR)/abt.sh show; exit 1; fi; \
 	else \
-		$(TEST_DIR)/$(TEST_TARGET); \
+		$(TEST_DIR)/$(TEST_TARGET) $(TEST_ARGS) || { $(TEST_DIR)/abt.sh show; exit 1; } \
 	fi
 ifneq ($(DEBUG),)
 	gcovr $(GCOVR_FLAGS) $(SRC_DIR) $(TEST_DIR)
