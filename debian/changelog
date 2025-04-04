@@ -1,3 +1,9 @@
+wb-mqtt-iec104 (1.1.14) stable; urgency=medium
+
+  * Fix lintian
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 04 Apr 2025 09:00:00 +0400
+
 wb-mqtt-iec104 (1.1.13) stable; urgency=medium
 
   * Fix tests, no functional changes
