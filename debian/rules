@@ -19,5 +19,5 @@ endif
 override_dh_installinit:
 	dh_installinit --noscripts
 
-override_dh_systemd_start:
-	dh_systemd_start --no-restart-after-upgrade
+override_dh_installsystemd:
+	dh_installsystemd --no-restart-after-upgrade
