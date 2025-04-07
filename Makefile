@@ -65,7 +65,7 @@ COMMON_OBJS += $(LIB60870_OBJS)
 LIB60870_INCLUDES = -I$(LIB60870_DIR)/inc/api -I$(LIB60870_DIR)/inc/internal -I$(LIB60870_DIR)/common/inc -I$(LIB60870_DIR)/hal/inc
 
 LDFLAGS = -lwbmqtt1 -lpthread
-CXXFLAGS = -std=c++17 -Wall -Werror $(LIB60870_INCLUDES) -I$(SRC_DIR)
+CXXFLAGS = -std=c++20 -Wall -Werror $(LIB60870_INCLUDES) -I$(SRC_DIR)
 CFLAGS = -Wall $(LIB60870_INCLUDES) -I$(SRC_DIR)
 
 CXXFLAGS += $(if $(or $(DEBUG)),$(DEBUG_CXXFLAGS),$(NORMAL_CXXFLAGS))
