@@ -272,12 +272,14 @@ void UpdateConfig(PDeviceDriver driver, Json::Value& oldConfig)
     std::map<std::string, std::map<std::string, PControl>> mqttDevices;
     auto tx = driver->BeginTx();
     for (auto& device: tx->GetDevicesList()) {
-        std::map<std::string, PControl> controls;
-        for (auto& control: device->ControlsList()) {
-            controls.insert({control->GetId(), control});
-        }
-        if (controls.size()) {
-            mqttDevices.insert({device->GetId(), controls});
+        if (!WBMQTT::StringStartsWith(device->GetId(), "system__")) {
+            std::map<std::string, PControl> controls;
+            for (auto& control: device->ControlsList()) {
+                controls.insert({control->GetId(), control});
+            }
+            if (controls.size()) {
+                mqttDevices.insert({device->GetId(), controls});
+            }
         }
     }
 
