@@ -306,7 +306,7 @@ namespace
 
     void TServerImpl::HandleInterrogationRequest(IMasterConnection connection, CS101_ASDU incomimgAsdu, int qoi)
     {
-        if (qoi == 20) { /* only handle station interrogation */
+        if (qoi == IEC60870_QOI_STATION) { /* only handle station interrogation */
             IMasterConnection_sendACT_CON(connection, incomimgAsdu, false);
 
             Send(AppLayerParameters,

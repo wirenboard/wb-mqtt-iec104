@@ -16,7 +16,7 @@ compile_commands.json
 
 # Visual Studio Code
 .vscode
-.clang-format
+.clang-*
 .devcontainer
 
 ### direnv ###
