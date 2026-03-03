@@ -21,6 +21,7 @@
           "type": "string",
           "title": "MQTT device and control (from topic name)",
           "propertyOrder": 2,
+          "readonly": true,
           "options": {
               "wb": {
                   "data": "devices"
@@ -31,7 +32,8 @@
         "info": {
           "type": "string",
           "title": "For information only",
-          "propertyOrder": 3
+          "propertyOrder": 3,
+          "readonly": true
         },
         "address": {
           "type": "integer",
@@ -80,7 +82,8 @@
         "name": {
           "type": "string",
           "title": "Group name",
-          "propertyOrder": 1
+          "propertyOrder": 1,
+          "readonly": true
         },
         "controls": {
           "type": "array",
@@ -94,6 +97,7 @@
             "disable_array_reorder": true,
             "disable_array_delete_last_row": true,
             "disable_array_delete_all_rows": true,
+            "disable_array_add": true,
             "disable_collapse": true,
             "compact": true,
             "wb": {
@@ -114,12 +118,20 @@
     }
   },
   "properties": {
+    "update_groups": {
+      "type": "boolean",
+      "title": "Update groups list",
+      "description": "update_groups_description",
+      "default": false,
+      "_format": "checkbox",
+      "propertyOrder": 1
+    },
     "debug": {
       "type": "boolean",
       "title": "Enable debug logging",
       "default": false,
       "_format": "checkbox",
-      "propertyOrder": 1
+      "propertyOrder": 2
     },
     "mqtt": {
       "type": "object",
@@ -165,7 +177,7 @@
         }
       },
       "required": ["host", "port"],
-      "propertyOrder": 2,
+      "propertyOrder": 3,
       "options" : {
         "disable_edit_json" : true,
         "disable_collapse" : true
@@ -198,7 +210,7 @@
           "propertyOrder": 3
         }
       },
-      "propertyOrder": 3,
+      "propertyOrder": 4,
       "required": ["host", "port", "address"],
       "options" : {
         "disable_edit_json" : true,
@@ -209,7 +221,7 @@
     "groups": {
       "type": "array",
       "title": "Groups of controls",
-      "propertyOrder": 4,
+      "propertyOrder": 5,
       "items": {
         "$ref": "#/definitions/group"
       },
@@ -217,6 +229,7 @@
         "disable_array_reorder": true,
         "disable_array_delete_last_row": true,
         "disable_array_delete_all_rows": true,
+        "disable_array_add": true,
         "disable_collapse": true
       },
       "_format": "tabs"
@@ -230,10 +243,13 @@
   },
   "translations": {
     "en": {
+      "update_groups_description": "This flag will be cleared on next start of daemon",
       "service_title": "MQTT to IEC 60870-5-104 gateway",
       "host_desc": "Local IP address to bind gateway to. If empty, gateway will listen to all local IP addresses"
     },
     "ru": {
+      "Update groups list": "Обновить список групп",
+      "update_groups_description": "Опция будет сброшена при следующем запуске сервиса",
       "service_title": "Шлюз MQTT - МЭК 60870-5-104",
       "Control": "Параметр",
       "Send": "Отправлять",
