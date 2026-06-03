@@ -1,4 +1,4 @@
-buildDebSbuild defaultTargets: 'trixie-armhf trixie-arm64',
+buildDebSbuild defaultTargets: 'current-armhf current-arm64',
                defaultRunLintian: true,
                defaultStyleCheckDirs: 'src test',
                defaultRunCoverage: true,
