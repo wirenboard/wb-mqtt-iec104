@@ -3,7 +3,7 @@ Maintainer: Wiren Board team <info@wirenboard.com>
 Section: misc
 Priority: optional
 Standards-Version: 4.5.1
-Build-Depends: debhelper (>= 10),
+Build-Depends: debhelper-compat (= 13),
                gcovr:all,
                libgtest-dev,
                libwbmqtt1-5-dev (>= 5.3.2~~),
