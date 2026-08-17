@@ -3,11 +3,10 @@
 #include <functional>
 #include <stdexcept>
 
-#include "cs104_slave.h"
-#include "iec60870_slave.h"
-
-#include "hal_thread.h"
-#include "hal_time.h"
+#include <lib60870/cs104_slave.h>
+#include <lib60870/hal_thread.h>
+#include <lib60870/hal_time.h>
+#include <lib60870/iec60870_slave.h>
 
 #include "log.h"
 
