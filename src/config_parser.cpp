@@ -241,8 +241,13 @@ TConfig LoadConfig(const std::string& configFileName, const std::string& configS
 void UpdateConfig(const string& configFileName, const string& configSchemaFileName)
 {
     const auto id = "wb-mqtt-iec104-config_generator";
-    auto config = JSON::Parse(configFileName);
-    JSON::Validate(config, JSON::Parse(configSchemaFileName));
+    Json::Value config;
+    try {
+        config = JSON::Parse(configFileName);
+        JSON::Validate(config, JSON::Parse(configSchemaFileName));
+    } catch (const std::exception& e) {
+        throw TConfigException(e.what());
+    }
 
     bool update_groups = false;
     Get(config, "update_groups", update_groups);

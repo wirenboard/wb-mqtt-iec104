@@ -67,6 +67,9 @@ namespace
                 case 'g':
                     try {
                         UpdateConfig(optarg, CONFIG_JSON_SCHEMA_FULL_FILE_PATH);
+                    } catch (const TConfigException& e) {
+                        std::cerr << "FATAL: " << e.what();
+                        exit(EXIT_NOTCONFIGURED);
                     } catch (const exception& e) {
                         std::cerr << "FATAL: " << e.what();
                         exit(1);
@@ -158,7 +161,7 @@ int main(int argc, char* argv[])
         SignalHandling::Wait();
 
     } catch (const TEmptyConfigException& e) {
-        LOG(Error) << "All groups are disabled in config file, stopping service gracefully";
+        LOG(Info) << "All groups are disabled in config file, stopping service gracefully";
         return EXIT_NOTRUNNING;
     } catch (const TConfigException& e) {
         LOG(Error) << "FATAL: " << e.what();
@@ -168,5 +171,5 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    return 0;
+    return EXIT_NOTRUNNING;
 }
