@@ -4,11 +4,11 @@ Section: misc
 Priority: optional
 Standards-Version: 4.5.1
 Build-Depends: debhelper-compat (= 13),
-               gcovr:all,
-               libgtest-dev,
+               liblib60870-dev,
                libwbmqtt1-5-dev (>= 5.3.2~~),
-               libwbmqtt1-5-test-utils (>= 5.3.2~~),
-               pkg-config
+               libwbmqtt1-5-test-utils (>= 5.3.2~~) <!nocheck>,
+               libgtest-dev <!nocheck>,
+               gcovr:all <!nocheck>
 Homepage: https://github.com/wirenboard/wb-mqtt-iec104
 
 Package: wb-mqtt-iec104

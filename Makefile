@@ -11,84 +11,53 @@ ifeq ($(origin CXX),default)
 	CXX := $(CROSS_COMPILE)g++
 endif
 
-TARGET = wb-mqtt-iec104
-OBJS = main.o
-SRC_DIR = src
-LIB60870_DIR = thirdparty/lib60870/lib60870-C/src
-
-COMMON_OBJS = log.o config_parser.o gateway.o IEC104Server.o iec104_exception.o
-
-DEBUG_CXXFLAGS = -O0 --coverage
-DEBUG_LDFLAGS = --coverage
-
-NORMAL_CXXFLAGS = -O2
-NORMAL_LDFLAGS =
-
-TEST_DIR = test
-TEST_OBJS = main.o config.test.o gateway.test.o
-TEST_TARGET = test-app
-TEST_LDFLAGS = -lgtest -lwbmqtt_test_utils
-
-VALGRIND_FLAGS = --error-exitcode=180 -q
-
-COV_REPORT ?= cov
-GCOVR_FLAGS := -s --html $(COV_REPORT).html -x $(COV_REPORT).xml
-ifneq ($(COV_FAIL_UNDER),)
-	GCOVR_FLAGS += --fail-under-line $(COV_FAIL_UNDER)
+ifeq ($(DEBUG),)
+	BUILD_DIR ?= build/release
+else
+	BUILD_DIR ?= build/debug
 endif
-
-TEST_OBJS := $(patsubst %, $(TEST_DIR)/%, $(TEST_OBJS))
-COMMON_OBJS := $(patsubst %, $(SRC_DIR)/%, $(COMMON_OBJS))
-OBJS := $(patsubst %, $(SRC_DIR)/%, $(OBJS))
-
-LIB60870_OBJS = \
-	$(LIB60870_DIR)/common/linked_list.o                       \
-	$(LIB60870_DIR)/hal/memory/lib_memory.o                    \
-	$(LIB60870_DIR)/hal/socket/linux/socket_linux.o            \
-	$(LIB60870_DIR)/hal/thread/linux/thread_linux.o            \
-	$(LIB60870_DIR)/hal/time/unix/time.o                       \
-	$(LIB60870_DIR)/iec60870/frame.o                           \
-	$(LIB60870_DIR)/iec60870/apl/cpXXtime2a.o                  \
-	$(LIB60870_DIR)/iec60870/cs101/cs101_asdu.o                \
-	$(LIB60870_DIR)/iec60870/cs101/cs101_bcr.o                 \
-	$(LIB60870_DIR)/iec60870/cs101/cs101_information_objects.o \
-	$(LIB60870_DIR)/iec60870/cs101/cs101_master_connection.o   \
-	$(LIB60870_DIR)/iec60870/cs101/cs101_queue.o               \
-	$(LIB60870_DIR)/iec60870/cs104/cs104_connection.o          \
-	$(LIB60870_DIR)/iec60870/cs104/cs104_frame.o               \
-	$(LIB60870_DIR)/iec60870/cs104/cs104_slave.o               \
-	$(LIB60870_DIR)/iec60870/link_layer/buffer_frame.o         \
-	$(SRC_DIR)/lib60870_common.o                               \
-
-COMMON_OBJS += $(LIB60870_OBJS)
-
-LIB60870_INCLUDES = -I$(LIB60870_DIR)/inc/api -I$(LIB60870_DIR)/inc/internal -I$(LIB60870_DIR)/common/inc -I$(LIB60870_DIR)/hal/inc
-
-LDFLAGS = -lwbmqtt1 -lpthread
-CXXFLAGS = -std=c++20 -Wall -Werror $(LIB60870_INCLUDES) -I$(SRC_DIR)
-CFLAGS = -Wall $(LIB60870_INCLUDES) -I$(SRC_DIR)
-
-CXXFLAGS += $(if $(or $(DEBUG)),$(DEBUG_CXXFLAGS),$(NORMAL_CXXFLAGS))
-LDFLAGS += $(if $(or $(DEBUG)),$(DEBUG_LDFLAGS),$(NORMAL_LDFLAGS))
 
 # extract Git revision and version number from debian/changelog
 GIT_REVISION:=$(shell git rev-parse HEAD)
 DEB_VERSION:=$(shell head -1 debian/changelog | awk '{ print $$2 }' | sed 's/[\(\)]//g')
 
-CXXFLAGS += -DWBMQTT_COMMIT="$(GIT_REVISION)" -DWBMQTT_VERSION="$(DEB_VERSION)"
+TARGET = wb-mqtt-iec104
+SRC_DIR = src
+
+COMMON_SRCS := $(shell find $(SRC_DIR) -name "*.cpp" -and -not -name main.cpp)
+COMMON_OBJS := $(COMMON_SRCS:%=$(BUILD_DIR)/%.o)
+
+LDFLAGS = -lwbmqtt1 -lpthread -llib60870
+CXXFLAGS = -std=c++20 -Wall -Werror -I$(SRC_DIR) -DWBMQTT_COMMIT="$(GIT_REVISION)" -DWBMQTT_VERSION="$(DEB_VERSION)"
+
+ifeq ($(DEBUG),)
+	CXXFLAGS += -O3 -DNDEBUG
+else
+	CXXFLAGS += -g -O0 --coverage -ggdb
+	LDFLAGS += --coverage
+endif
+
+TEST_DIR = test
+TEST_SRCS := $(shell find $(TEST_DIR) -name "*.cpp")
+TEST_OBJS := $(TEST_SRCS:%=$(BUILD_DIR)/%.o)
+TEST_TARGET = test-app
+TEST_LDFLAGS = -lgtest -lwbmqtt_test_utils
+
+VALGRIND_FLAGS = --error-exitcode=180 -q
+
+COV_REPORT ?= $(BUILD_DIR)/cov
+GCOVR_FLAGS := -s --html $(COV_REPORT).html -x $(COV_REPORT).xml
+ifneq ($(COV_FAIL_UNDER),)
+	GCOVR_FLAGS += --fail-under-line $(COV_FAIL_UNDER)
+endif
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS) $(COMMON_OBJS)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+$(TARGET): $(COMMON_OBJS) $(BUILD_DIR)/$(SRC_DIR)/main.cpp.o
+	$(CXX) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
 
-%.o: %.c
-	$(CC) -c $< -o $@ $(CFLAGS)
-
-src/%.o: src/%.cpp
-	$(CXX) -c $(CXXFLAGS) -o $@ $^
-
-test/%.o: test/%.cpp
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	mkdir -p $(dir $@)
 	$(CXX) -c $(CXXFLAGS) -o $@ $^
 
 test: $(TEST_DIR)/$(TEST_TARGET)
@@ -103,7 +72,7 @@ test: $(TEST_DIR)/$(TEST_TARGET)
 		$(TEST_DIR)/$(TEST_TARGET) $(TEST_ARGS) || { $(TEST_DIR)/abt.sh show; exit 1; } \
 	fi
 ifneq ($(DEBUG),)
-	gcovr $(GCOVR_FLAGS) $(SRC_DIR) $(TEST_DIR)
+	gcovr $(GCOVR_FLAGS) $(BUILD_DIR)/$(SRC_DIR) $(BUILD_DIR)/$(TEST_DIR)
 endif
 
 $(TEST_DIR)/$(TEST_TARGET): $(TEST_OBJS) $(COMMON_OBJS)
@@ -112,13 +81,12 @@ $(TEST_DIR)/$(TEST_TARGET): $(TEST_OBJS) $(COMMON_OBJS)
 distclean: clean
 
 clean:
-	rm -rf $(SRC_DIR)/*.o $(TARGET) $(TEST_DIR)/*.o $(TEST_DIR)/$(TEST_TARGET) $(LIB60870_OBJS)
-	rm -rf $(SRC_DIR)/*.gcda $(SRC_DIR)/*.gcno $(TEST_DIR)/*.gcda $(TEST_DIR)/*.gcno
+	rm -rf build $(TEST_DIR)/$(TEST_TARGET)
 
 install:
+	install -Dm0755 $(BUILD_DIR)/$(TARGET) -t $(DESTDIR)$(PREFIX)/bin
 	install -Dm0644 wb-mqtt-iec104.schema.json -t $(DESTDIR)$(PREFIX)/share/wb-mqtt-confed/schemas
 	install -Dm0644 wb-mqtt-iec104.sample.conf -t $(DESTDIR)$(PREFIX)/share/wb-mqtt-iec104
-	install -Dm0755 $(TARGET) -t $(DESTDIR)$(PREFIX)/bin
 	install -Dm0644 wb-mqtt-iec104.wbconfigs $(DESTDIR)/etc/wb-configs.d/17wb-mqtt-iec104
 
 .PHONY: all test clean
