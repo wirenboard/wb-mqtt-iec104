@@ -72,6 +72,34 @@ namespace
     {
         return "'" + control->GetDevice()->GetId() + "'/'" + control->GetId() + "'";
     }
+
+    //! Throws if the value is out of min and max of a "range" control
+    void CheckLimits(PControl control, const std::string& value)
+    {
+        if (control->GetType() != "range") {
+            return;
+        }
+        auto min = control->GetMin();
+        auto max = control->GetMax();
+        if (!min && !max) {
+            return;
+        }
+
+        double v = 0;
+        size_t pos = 0;
+        try {
+            v = std::stod(value, &pos);
+        } catch (const std::exception&) {
+            pos = 0;
+        }
+        if (pos == 0 || pos != value.size()) {
+            throw std::runtime_error("value is not a number");
+        }
+        // Negated comparisons reject NaN
+        if ((min && !(v >= *min)) || (max && !(v <= *max))) {
+            throw std::runtime_error("value is out of range");
+        }
+    }
 }
 
 TGateway::TGateway(PDeviceDriver driver, IEC104::IServer* iecServer, const TDeviceConfig& devices)
@@ -176,6 +204,7 @@ bool TGateway::SetParameter(uint32_t ioa, const std::string& value) noexcept
             throw std::runtime_error("'" + it->second.Device + "' doesn't contain control '" + it->second.Control +
                                      "'");
         }
+        CheckLimits(pControl, value);
         pControl->SetRawValue(tx, value).Sync();
         LOG(Info) << "Set " << GetFullName(pControl) << " = '" << value << "'";
         return true;
