@@ -184,6 +184,7 @@ namespace
         Slave = CS104_Slave_create(100, 100);
 
         CS104_Slave_setLocalAddress(Slave, config.BindIp.empty() ? "0.0.0.0" : config.BindIp.c_str());
+        CS104_Slave_setLocalPort(Slave, config.BindPort);
 
         AppLayerParameters = CS104_Slave_getAppLayerParameters(Slave);
 
