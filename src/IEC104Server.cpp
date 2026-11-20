@@ -169,10 +169,18 @@ namespace
         if (CS101_ASDU_getCOT(asdu) == CS101_COT_ACTIVATION) {
             InformationObject io = CS101_ASDU_getElement(asdu, 0);
             CS101_ASDU_setCOT(asdu, CS101_COT_ACTIVATION_CON);
-            if (!handler->SetParameter(InformationObject_getObjectAddress(io), fn(io))) {
+            // A malformed ASDU (e.g. an empty or truncated payload) can't be decoded into an
+            // information object and getElement returns NULL. Reject it with a negative
+            // confirmation instead of dereferencing the NULL pointer.
+            if (io == nullptr) {
+                LOG(Warn) << "Received command ASDU with no decodable information object";
                 CS101_ASDU_setNegative(asdu, true);
+            } else {
+                if (!handler->SetParameter(InformationObject_getObjectAddress(io), fn(io))) {
+                    CS101_ASDU_setNegative(asdu, true);
+                }
+                InformationObject_destroy(io);
             }
-            InformationObject_destroy(io);
         } else {
             CS101_ASDU_setCOT(asdu, CS101_COT_UNKNOWN_COT);
         }
