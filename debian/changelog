@@ -1,9 +1,6 @@
 wb-mqtt-iec104 (1.4.3) stable; urgency=medium
 
-  * Fix crash on a malformed command ASDU: a command whose payload can't
-    be decoded into an information object made getElement return NULL,
-    which was dereferenced. Reject such ASDUs with a negative activation
-    confirmation instead
+  * Fix crash on a malformed command ASDU
 
  -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 20 Nov 2026 15:00:00 +0400
 
