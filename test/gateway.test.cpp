@@ -50,6 +50,7 @@ protected:
     PControl Control5;
     PControl Control6;
     PControl ControlNotInConfig;
+    PLocalDevice Device;
 
     void SetUp()
     {
@@ -67,23 +68,23 @@ protected:
         Config = LoadConfig(TestRootDir + "/config.conf", SchemaFile).Devices;
 
         auto tx = Driver->BeginTx();
-        auto device = tx->CreateDevice(TLocalDeviceArgs{}.SetId("test")).GetValue();
+        Device = tx->CreateDevice(TLocalDeviceArgs{}.SetId("test")).GetValue();
 
-        Control1 = device->CreateControl(tx, TControlArgs{}.SetId("test1").SetType("value").SetValue(1.23)).GetValue();
+        Control1 = Device->CreateControl(tx, TControlArgs{}.SetId("test1").SetType("value").SetValue(1.23)).GetValue();
 
         Control2 =
-            device->CreateControl(tx, TControlArgs{}.SetId("test2").SetType("switch").SetValue(false)).GetValue();
+            Device->CreateControl(tx, TControlArgs{}.SetId("test2").SetType("switch").SetValue(false)).GetValue();
 
-        Control3 = device->CreateControl(tx, TControlArgs{}.SetId("test3").SetType("value").SetValue(123)).GetValue();
+        Control3 = Device->CreateControl(tx, TControlArgs{}.SetId("test3").SetType("value").SetValue(123)).GetValue();
 
-        Control4 = device->CreateControl(tx, TControlArgs{}.SetId("test4").SetType("value").SetValue(3.21)).GetValue();
+        Control4 = Device->CreateControl(tx, TControlArgs{}.SetId("test4").SetType("value").SetValue(3.21)).GetValue();
 
-        Control5 = device->CreateControl(tx, TControlArgs{}.SetId("test5").SetType("switch").SetValue(true)).GetValue();
+        Control5 = Device->CreateControl(tx, TControlArgs{}.SetId("test5").SetType("switch").SetValue(true)).GetValue();
 
-        Control6 = device->CreateControl(tx, TControlArgs{}.SetId("test6").SetType("value").SetValue(321)).GetValue();
+        Control6 = Device->CreateControl(tx, TControlArgs{}.SetId("test6").SetType("value").SetValue(321)).GetValue();
 
         ControlNotInConfig =
-            device->CreateControl(tx, TControlArgs{}.SetId("ControlNotInConfig").SetType("value").SetValue(1.23))
+            Device->CreateControl(tx, TControlArgs{}.SetId("ControlNotInConfig").SetType("value").SetValue(1.23))
                 .GetValue();
         tx->End();
     }
@@ -124,7 +125,38 @@ TEST_F(TGatewayTest, SetParameter)
     ASSERT_TRUE(gw.SetParameter(6, "-15"));
 
     // Unknown ioa
-    ASSERT_FALSE(gw.SetParameter(7, "7"));
+    ASSERT_FALSE(gw.SetParameter(100, "7"));
+}
+
+TEST_F(TGatewayTest, SetParameterLimits)
+{
+    {
+        auto tx = Driver->BeginTx();
+        Device->CreateControl(tx, TControlArgs{}.SetId("range").SetType("range").SetMin(-10).SetMax(100).SetValue(0))
+            .GetValue();
+        Device->CreateControl(tx, TControlArgs{}.SetId("range_max").SetType("range").SetMax(10).SetValue(0)).GetValue();
+        tx->End();
+    }
+
+    TFakeIecServer iecServer(*this);
+    TGateway gw(Driver, &iecServer, Config);
+
+    // range [-10, 100]
+    EXPECT_TRUE(gw.SetParameter(7, "100.000000"));
+    EXPECT_TRUE(gw.SetParameter(7, "-10.000000"));
+    EXPECT_TRUE(gw.SetParameter(7, "50.500000"));
+    EXPECT_FALSE(gw.SetParameter(7, "100.500000"));
+    EXPECT_FALSE(gw.SetParameter(7, "-10.500000"));
+    EXPECT_FALSE(gw.SetParameter(7, "nan"));
+    EXPECT_FALSE(gw.SetParameter(7, "inf"));
+    EXPECT_FALSE(gw.SetParameter(7, "abc"));
+    EXPECT_FALSE(gw.SetParameter(7, "1abc"));
+    EXPECT_FALSE(gw.SetParameter(7, ""));
+
+    // range with max only
+    EXPECT_TRUE(gw.SetParameter(8, "-1000"));
+    EXPECT_TRUE(gw.SetParameter(8, "10"));
+    EXPECT_FALSE(gw.SetParameter(8, "11"));
 }
 
 TEST_F(TGatewayTest, GetInformationObjectsValues)

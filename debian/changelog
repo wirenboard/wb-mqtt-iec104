@@ -1,3 +1,10 @@
+wb-mqtt-iec104 (1.4.2) stable; urgency=medium
+
+  * Reject set point commands with values out of range min and max with
+    a negative activation confirmation
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 20 Nov 2026 12:00:00 +0400
+
 wb-mqtt-iec104 (1.4.1) stable; urgency=medium
 
   * Fix iec104.port config option being ignored, the server always
