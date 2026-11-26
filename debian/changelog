@@ -1,9 +1,29 @@
-wb-mqtt-iec104 (1.4.1) stable; urgency=medium
+wb-mqtt-iec104 (1.4.4) stable; urgency=medium
 
   * Update LICENSE: Wiren Board as the copyright holder,
     2020 as the first publication year, use restricted to Wiren Board equipment
 
- -- Ekaterina Volkova <ekaterina.volkova@wirenboard.com>  Thu, 12 Nov 2026 14:40:07 +0300
+ -- Ekaterina Volkova <ekaterina.volkova@wirenboard.com>  Thu, 26 Nov 2026 18:14:07 +0300
+
+wb-mqtt-iec104 (1.4.3) stable; urgency=medium
+
+  * Fix crash on a malformed command ASDU
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 20 Nov 2026 15:00:00 +0400
+
+wb-mqtt-iec104 (1.4.2) stable; urgency=medium
+
+  * Reject set point commands with values out of range min and max with
+    a negative activation confirmation
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 20 Nov 2026 12:00:00 +0400
+
+wb-mqtt-iec104 (1.4.1) stable; urgency=medium
+
+  * Fix iec104.port config option being ignored, the server always
+    listened on port 2404
+
+ -- Nikolay Korotkiy <nikolay.korotkiy@wirenboard.com>  Fri, 20 Nov 2026 01:18:26 +0400
 
 wb-mqtt-iec104 (1.4.0) stable; urgency=medium
 
